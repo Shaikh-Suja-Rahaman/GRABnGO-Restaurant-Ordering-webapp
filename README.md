@@ -4,7 +4,7 @@
   <h1>GrabNGo</h1>
 
   <p>
-    A modern, minimal restaurant ordering system with a unique "claim ticket" aesthetic.
+    A modern, minimal restaurant ordering system
   </p>
 
   <p>

@@ -2,246 +2,116 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ShoppingCart, Trash2, Plus, Minus, Loader2, ShoppingBag, Package } from 'lucide-react';
+import { Plus, Minus, Trash2, Loader2, ShoppingBag, ShieldCheck, LogOut } from 'lucide-react';
+
 const apiUrl = import.meta.env.VITE_API_URL;
-// Import all our actions
-import {
-  addToCart,
-  removeFromCart,
-  clearCart,
-} from '../redux/slices/cartSlice';
-import {
-  orderCreateRequest,
-  orderCreateSuccess,
-  orderCreateFail,
-  orderReset,
-} from '../redux/slices/orderSlice';
+import { logout } from '../redux/slices/authSlice';
+
+import { addToCart, removeFromCart, clearCart } from '../redux/slices/cartSlice';
+import { orderCreateRequest, orderCreateSuccess, orderCreateFail, orderReset } from '../redux/slices/orderSlice';
 import { setActiveTab } from '../redux/slices/navigationSlice';
 
-
-// CartItem Component
-const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
-  const decreaseQty = () => {
-    if (item.quantity > 1) {
-      // Just pass the new quantity directly
-      onUpdateQuantity(item._id, item.quantity - 1);
-    }
-  };
-
-  const increaseQty = () => {
-    if (item.quantity < 10) {
-      // Just pass the new quantity directly
-      onUpdateQuantity(item._id, item.quantity + 1);
-    }
-  };
+// ─── Cart row (wide list style) ────────────────────────
+function CartRow({ item, onUpdateQty, onRemove }) {
+  const [imgErr, setImgErr] = React.useState(false);
 
   return (
-    <div className="bg-[#FFF8F0] rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border-2 border-[#8B4049]/10">
-      <div className="flex gap-4 p-4">
-        {/* Image */}
-        <div className="flex-shrink-0">
-          {item.imageUrl ? (
-            <img
-              src={item.imageUrl}
-              alt={item.name}
-              className="w-24 h-24 object-cover rounded-lg"
-            />
-          ) : (
-            <div className="w-24 h-24 bg-gradient-to-br from-[#8B4049] to-[#6B3039] rounded-lg flex items-center justify-center">
-              <span className="text-[#FFF8F0] text-3xl font-serif">
-                {item.name.charAt(0)}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Item Details */}
-        <div className="flex-1 flex flex-col justify-between">
-          <div>
-            <h3 className="text-xl font-serif font-bold text-[#8B4049] mb-1">
-              {item.name}
-            </h3>
-            <p className="text-gray-600 text-sm line-clamp-1">
-              {item.description}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between mt-2">
-            {/* Quantity Controls */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={decreaseQty}
-                disabled={item.quantity <= 1}
-                className="w-8 h-8 rounded-full bg-[#8B4049]/10 text-[#8B4049] hover:bg-[#8B4049]/20 transition-colors flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-
-              <span className="w-12 text-center font-semibold text-[#8B4049] text-lg">
-                {item.quantity}
-              </span>
-
-              <button
-                onClick={increaseQty}
-                disabled={item.quantity >= 10}
-                className="w-8 h-8 rounded-full bg-[#8B4049]/10 text-[#8B4049] hover:bg-[#8B4049]/20 transition-colors flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Price */}
-            <div className="text-right">
-              <p className="text-sm text-gray-500">
-                Rs {item.price.toFixed(2)} each
-              </p>
-              <p className="text-2xl font-bold text-[#8B4049]">
-                Rs {(item.price * item.quantity).toFixed(2)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Remove Button */}
-        <div className="flex-shrink-0">
-          <button
-            onClick={() => onRemove(item._id)}
-            className="w-10 h-10 rounded-full bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center border-2 border-red-200"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// OrderSummary Component
-const OrderSummary = ({ cartItems, totalPrice, onPlaceOrder, loading, error }) => {
-  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
-  return (
-    <div className="bg-[#FFF8F0] rounded-lg shadow-lg p-6 border-2 border-[#8B4049]/10 sticky top-6">
-      <h2 className="text-2xl font-serif font-bold text-[#8B4049] mb-6 flex items-center gap-2">
-        <Package className="w-6 h-6" />
-        Order Summary
-      </h2>
-
-      <div className="space-y-4 mb-6">
-        <div className="flex justify-between items-center pb-3 border-b border-[#8B4049]/10">
-          <span className="text-gray-600">Total Items:</span>
-          <span className="font-semibold text-[#8B4049] text-lg">{totalItems}</span>
-        </div>
-
-        <div className="flex justify-between items-center pb-3 border-b border-[#8B4049]/10">
-          <span className="text-gray-600">Subtotal:</span>
-          <span className="font-semibold text-[#8B4049] text-lg">Rs {totalPrice}</span>
-        </div>
-
-        <div className="flex justify-between items-center pt-2">
-          <span className="text-xl font-serif font-bold text-[#8B4049]">Total:</span>
-          <span className="text-3xl font-bold text-[#8B4049]">Rs {totalPrice}</span>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 mb-4">
-          <p className="text-red-600 text-sm font-semibold">{error}</p>
-        </div>
-      )}
-
-      <button
-        onClick={onPlaceOrder}
-        disabled={loading}
-        className="w-full bg-[#8B4049] text-[#FFF8F0] py-4 rounded-lg font-bold text-lg hover:bg-[#6B3039] transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Placing Order...
-          </>
+    <div className="card" style={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      position: 'relative',
+      padding: '12px',
+      gap: '16px',
+      height: '104px',
+      marginBottom: '16px',
+    }}>
+      {/* Thumbnail */}
+      <div style={{
+        width: '80px', height: '80px',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        flexShrink: 0,
+        background: 'var(--color-card-border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {item.imageUrl && !imgErr ? (
+          <img src={item.imageUrl} alt={item.name} onError={() => setImgErr(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <>
-            <ShoppingBag className="w-5 h-5" />
-            Place Order
-          </>
+          <span style={{ fontSize: '28px', color: 'var(--color-ink)', opacity: 0.5, fontFamily: 'serif' }}>
+            {item.name.charAt(0)}
+          </span>
         )}
-      </button>
+      </div>
 
-      <p className="text-xs text-gray-500 text-center mt-4">
-        You will be redirected after placing your order
-      </p>
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0, paddingRight: '16px' }}>
+        <p className="t-name" style={{ marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {item.name}
+        </p>
+        <p className="t-price" style={{ fontSize: '15px' }}>₹{(item.price * item.quantity).toFixed(0)}</p>
+        {item.quantity > 1 && (
+          <p className="t-desc" style={{ marginTop: '2px', fontSize: '12px' }}>
+            ₹{item.price.toFixed(0)} × {item.quantity}
+          </p>
+        )}
+      </div>
+
+      {/* Qty stepper */}
+      <div className="qty-stepper" style={{ flexShrink: 0 }}>
+        <button
+          className="qty-btn"
+          id={`cart-dec-${item._id}`}
+          onClick={() => onUpdateQty(item._id, item.quantity - 1)}
+        >
+          {item.quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
+        </button>
+        <span className="qty-count">{item.quantity}</span>
+        <button
+          className="qty-btn"
+          id={`cart-inc-${item._id}`}
+          onClick={() => onUpdateQty(item._id, item.quantity + 1)}
+          disabled={item.quantity >= 10}
+        >
+          <Plus size={14} />
+        </button>
+      </div>
     </div>
   );
-};
+}
 
-// Main CartPage Component
-const CartPage = () => {
+// ─── Main CartPage ──────────────────────────────────────
+export default function CartPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get all the state slices we need
-  const { cartItems } = useSelector((state) => state.cart);
-  const { userInfo } = useSelector((state) => state.auth);
-  const { loading, error, success, order } = useSelector((state) => state.order);
+  const { cartItems } = useSelector((s) => s.cart);
+  const { userInfo }  = useSelector((s) => s.auth);
+  const { loading, error, success } = useSelector((s) => s.order);
 
-  // Calculate the total price
-  const totalPrice = cartItems
-    .reduce((acc, item) => acc + item.price * item.quantity, 0)
-    .toFixed(2);
+  const subtotal = cartItems.reduce((a, i) => a + i.price * i.quantity, 0);
+  const totalStr = subtotal.toFixed(2);
 
-  // This useEffect handles what happens AFTER an order is placed
   useEffect(() => {
-    if (success) {
-      navigate('/');
-      dispatch(clearCart());
-      dispatch(orderReset());
-    }
+    if (success) { navigate('/'); dispatch(clearCart()); dispatch(orderReset()); }
   }, [success, navigate, dispatch]);
 
-  // Update quantity handler
-  const updateQuantityHandler = (itemId, newQuantity) => {
-    const existingItem = cartItems.find(item => item._id === itemId);
-    if (existingItem) {
-      dispatch(addToCart({
-        ...existingItem,
-        quantity: newQuantity
-      }));
-    }
+  const updateQty = (itemId, qty) => {
+    const item = cartItems.find((i) => i._id === itemId);
+    if (!item) return;
+    if (qty < 1) { dispatch(removeFromCart(itemId)); return; }
+    if (qty > 10) return;
+    dispatch(addToCart({ ...item, quantity: qty }));
   };
 
-  // Remove item handler
-  const removeItemHandler = (itemId) => {
-    dispatch(removeFromCart(itemId));
-  };
-
-  // This handler runs when "Place Order" is clicked
-  const placeOrderHandler = async () => {
-    if (!userInfo) {
-      navigate('/login');
-      return;
-    }
-
+  const placeOrder = async () => {
+    if (!userInfo) { navigate('/login'); return; }
     dispatch(orderCreateRequest());
-
     try {
-      const { token } = userInfo;
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
-      // 1) Create Razorpay order
-      const { data } = await axios.post(
-        `${apiUrl}/api/payments/create-order`,
-        { totalPrice: Number(totalPrice) },
-        config
-      );
+      const cfg = { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${userInfo.token}` } };
+      const { data } = await axios.post(`${apiUrl}/api/payments/create-order`, { totalPrice: Number(totalStr) }, cfg);
       const { razorpayOrder } = data;
-
-      // 2) Open Razorpay Checkout
       const options = {
         key: 'rzp_test_RqJeFkIbBlROTt',
         amount: razorpayOrder.amount,
@@ -249,121 +119,186 @@ const CartPage = () => {
         name: 'Kiosks',
         description: 'Payment',
         order_id: razorpayOrder.id,
-        handler: async function (response) {
+        handler: async (resp) => {
           try {
-            // 3) Verify signature + create order in backend
-            const verifyRes = await axios.post(
-              `${apiUrl}/api/payments/verify`,
-              {
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-                orderItems: cartItems.map(({ _id, quantity, price }) => ({
-                  menuItem: _id,
-                  quantity,
-                  price,
-                })),
-                totalPrice: Number(totalPrice),
-              },
-              config
-            );
-
-            dispatch(orderCreateSuccess(verifyRes.data));
+            const v = await axios.post(`${apiUrl}/api/payments/verify`, {
+              orderId: resp.razorpay_order_id,
+              paymentId: resp.razorpay_payment_id,
+              signature: resp.razorpay_signature,
+              orderItems: cartItems.map(({ _id, quantity, price }) => ({ menuItem: _id, quantity, price })),
+              totalPrice: Number(totalStr),
+            }, cfg);
+            dispatch(orderCreateSuccess(v.data));
             dispatch(clearCart());
             navigate('/');
-          } catch (err) {
+          } catch (e) {
             alert('Payment verification failed');
-            dispatch(orderCreateFail(err.response?.data?.message || err.message));
+            dispatch(orderCreateFail(e.response?.data?.message || e.message));
           }
         },
-        theme: { color: '#7A3E43' },
-
+        theme: { color: '#8B4049' },
+        modal: { ondismiss: () => dispatch(orderCreateFail('Payment cancelled')) },
       };
-
-      const rzp1 = new window.Razorpay(options);
-      rzp1.on('payment.failed', function () {
-        dispatch(orderCreateFail('Payment failed'));
-      });
-      // also handle close/dismiss
-      options.modal = {
-        ondismiss: () => dispatch(orderCreateFail('Payment cancelled')),
-      };
-      rzp1.open();
-    } catch (err) {
-      dispatch(orderCreateFail(err.response?.data?.message || err.message));
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', () => dispatch(orderCreateFail('Payment failed')));
+      rzp.open();
+    } catch (e) {
+      dispatch(orderCreateFail(e.response?.data?.message || e.message));
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  const totalItems = cartItems.reduce((a, i) => a + i.quantity, 0);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF8F0] to-[#F5E6D3]">
-      {/* Header */}
-      <div className="bg-[#8B4049] shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-12 text-center">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <ShoppingCart className="w-10 h-10 text-[#FFF8F0]" />
-            <h1 className="text-5xl font-serif font-bold text-[#FFF8F0]">
-              Shopping Cart
-            </h1>
+    <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
+
+      {/* ── Sticky Page Header ── */}
+      <div style={{
+        background: 'var(--color-background)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+      }}>
+        <div style={{
+          position: 'absolute', bottom: '-20px', left: 0, right: 0, height: '20px',
+          background: 'linear-gradient(to bottom, var(--color-background) 0%, transparent 100%)',
+          pointerEvents: 'none'
+        }}/>
+        <div style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          padding: '24px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <div>
+            <p className="t-page-title">Your Cart</p>
+            <p className="t-desc" style={{ marginTop: '4px' }}>
+              {cartItems.length === 0 ? 'Nothing here yet' : `${totalItems} item${totalItems > 1 ? 's' : ''}`}
+            </p>
           </div>
-          <p className="text-[#FFF8F0] text-lg opacity-90">
-            Review your items and place your order
-          </p>
+          {userInfo && (
+            <button 
+              onClick={handleLogout}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ink)', opacity: 0.7, padding: '8px' }}
+              aria-label="Logout"
+            >
+              <LogOut size={24} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px 20px' }}>
         {cartItems.length === 0 ? (
-          <div className="bg-[#FFF8F0] rounded-lg shadow-lg p-12 text-center max-w-2xl mx-auto">
-            <ShoppingCart className="w-20 h-20 text-[#8B4049] mx-auto mb-4 opacity-50" />
-            <h2 className="text-2xl font-serif font-bold text-[#8B4049] mb-3">
-              Your Cart is Empty
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Looks like you haven't added anything to your cart yet. Start exploring our delicious menu!
+          /* Empty */
+          <div style={{
+            background: 'var(--color-card-surface)',
+            border: '1px solid rgba(36, 31, 26, 0.08)',
+            borderRadius: '16px',
+            padding: '64px 24px',
+            textAlign: 'center',
+            maxWidth: '480px', margin: '40px auto',
+          }}>
+            <ShoppingBag size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+            <p className="t-name" style={{ marginBottom: '8px' }}>
+              Your cart is empty
+            </p>
+            <p className="t-desc" style={{ marginBottom: '32px' }}>
+              Add items from the menu to get started.
             </p>
             <button
+              id="browse-menu-btn"
+              className="btn-cta"
               onClick={() => dispatch(setActiveTab('menu'))}
-              className="bg-[#8B4049] text-[#FFF8F0] px-8 py-3 rounded-full font-semibold hover:bg-[#6B3039] transition-colors shadow-md hover:shadow-lg"
+              style={{ width: '100%' }}
             >
               Browse Menu
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items - Takes up 2 columns */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="mb-4">
-                <h2 className="text-2xl font-serif font-bold text-[#8B4049]">
-                  Cart Items ({cartItems.length})
-                </h2>
-              </div>
-
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr) 340px',
+            gap: '32px',
+            alignItems: 'start',
+          }}>
+            {/* Item list column */}
+            <div style={{ paddingTop: '0' }}>
               {cartItems.map((item) => (
-                <CartItem
+                <CartRow
                   key={item._id}
                   item={item}
-                  onUpdateQuantity={updateQuantityHandler}
-                  onRemove={removeItemHandler}
+                  onUpdateQty={updateQty}
+                  onRemove={(id) => dispatch(removeFromCart(id))}
                 />
               ))}
             </div>
 
-            {/* Order Summary - Takes up 1 column */}
-            <div className="lg:col-span-1">
-              <OrderSummary
-                cartItems={cartItems}
-                totalPrice={totalPrice}
-                onPlaceOrder={placeOrderHandler}
-                loading={loading}
-                error={error}
-              />
+            {/* Order summary sidebar */}
+            <div className="card" style={{
+              padding: '24px',
+              position: 'sticky',
+              top: '110px',
+            }}>
+              <p className="t-section" style={{ marginBottom: '24px' }}>Order Summary</p>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <span className="t-desc">Items ({totalItems})</span>
+                <span className="t-price" style={{ fontSize: '14px' }}>₹{totalStr}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <span className="t-desc">Delivery</span>
+                <span className="t-price" style={{ fontSize: '14px', color: '#166534' }}>Free</span>
+              </div>
+
+              <div style={{ borderTop: '1px dashed rgba(36, 31, 26, 0.15)', margin: '16px 0' }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center' }}>
+                <span className="t-name" style={{ fontSize: '18px' }}>Total</span>
+                <span className="t-price" style={{ fontSize: '20px' }}>₹{totalStr}</span>
+              </div>
+
+              {error && (
+                <p style={{ color: '#991b1b', fontSize: '13px', marginBottom: '16px', textAlign: 'center' }}>{error}</p>
+              )}
+
+              <button
+                id="place-order-btn"
+                className="btn-cta"
+                onClick={placeOrder}
+                disabled={loading}
+                style={{ width: '100%', padding: '16px', fontSize: '15px', borderRadius: '12px' }}
+              >
+                {loading
+                  ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</>
+                  : <><ShoppingBag size={16} /> Place Order</>}
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '16px' }}>
+                <ShieldCheck size={14} style={{ color: 'var(--color-ink)', opacity: 0.6 }} />
+                <span className="t-desc" style={{ fontSize: '12px' }}>Secured by Razorpay</span>
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+          /* Stack columns on mobile */
+          div[style*="grid-template-columns: minmax(0, 1fr) 340px"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
-};
-
-export default CartPage;
+}

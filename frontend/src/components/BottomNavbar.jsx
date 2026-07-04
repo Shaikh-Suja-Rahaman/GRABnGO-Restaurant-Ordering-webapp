@@ -1,46 +1,104 @@
 import React from 'react';
 import { LayoutGrid, ScrollText, Heart, ShoppingCart } from 'lucide-react';
+import { useSelector } from 'react-redux';
+
+const navItems = [
+  { id: 'menu',      label: 'Menu',    icon: LayoutGrid   },
+  { id: 'orders',    label: 'Orders',  icon: ScrollText   },
+  { id: 'favorites', label: 'Saved',   icon: Heart        },
+  { id: 'cart',      label: 'Cart',    icon: ShoppingCart },
+];
 
 export default function BottomNavbar({ activeTab, setActiveTab }) {
-  const navItems = [
-    { id: 'menu', label: 'Menu', icon: LayoutGrid },
-    { id: 'orders', label: 'My Orders', icon: ScrollText },
-    { id: 'favorites', label: 'Favorites', icon: Heart },
-    { id: 'cart', label: 'Cart', icon: ShoppingCart },
-  ];
+  const cartItems = useSelector((s) => s.cart.cartItems);
+  const cartCount = cartItems.reduce((a, i) => a + i.quantity, 0);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-gray-200 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.05)]">
-      {/* max-w-lg and mx-auto are great for mobile-first apps */}
-      <div className="flex justify-around items-center h-full max-w-lg mx-auto px-4 py-2">
-        {navItems.map(item => {
-          const isActive = activeTab === item.id;
-          const Icon = item.icon;
+    <nav style={{
+      position: 'fixed',
+      bottom: '24px', 
+      left: '50%',
+      transform: 'translateX(-50%)',
+      height: '64px',
+      width: 'calc(100% - 32px)',
+      maxWidth: '400px',
+      background: 'rgba(249, 245, 236, 0.85)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      border: '1px solid rgba(36, 31, 26, 0.08)',
+      borderRadius: '16px',
+      boxShadow: '0 4px 20px rgba(36, 31, 26, 0.05)',
+      zIndex: 100,
+      padding: '0 8px',
+    }}>
+      <div style={{
+        display: 'flex',
+        height: '100%',
+        justifyContent: 'space-between',
+      }}>
+        {navItems.map(({ id, label, icon: Icon }) => {
+          const active = activeTab === id;
+          const showBadge = id === 'cart' && cartCount > 0;
           return (
             <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              // Base styling for the button
-              className={`
-                flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200
-                w-20 h-16
-                ${isActive ? 'text-red-800' : 'text-gray-500 hover:text-gray-800'}
-              `}
+              key={id}
+              id={`nav-${id}`}
+              onClick={() => setActiveTab(id)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                position: 'relative',
+              }}
             >
+              {/* Badge */}
+              {showBadge && (
+                <span style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: 'calc(50% - 20px)',
+                  background: 'var(--color-stamp)',
+                  color: '#FFFFFF',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  minWidth: '16px',
+                  height: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 4px',
+                  lineHeight: 1,
+                }}>
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
+
               <Icon
-                className={`w-6 h-6`}
-                // Fill the icon if it's active (especially for Heart)
-                fill={isActive && (item.id === 'favorites' || item.id === 'cart') ? 'currentColor' : 'none'}
+                size={22}
+                strokeWidth={active ? 2.5 : 2}
+                style={{
+                  color: active ? 'var(--color-ink)' : 'rgba(36, 31, 26, 0.5)',
+                  transition: 'color 150ms ease',
+                }}
               />
-              {/* Show label for active tab */}
-              <span className={`
-                text-xs font-medium mt-1 transition-all
-                ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
-              `}>
-                {item.label}
+              <span style={{
+                fontSize: '11px',
+                fontWeight: active ? 700 : 500,
+                color: active ? 'var(--color-ink)' : 'rgba(36, 31, 26, 0.5)',
+                fontFamily: 'var(--font-body)',
+                textTransform: 'uppercase',
+                transition: 'color 150ms ease',
+              }}>
+                {label}
               </span>
-              {/* Active tab indicator dot */}
-              
             </button>
           );
         })}

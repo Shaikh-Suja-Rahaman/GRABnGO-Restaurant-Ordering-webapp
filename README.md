@@ -1,6 +1,6 @@
-# 🍽️ Kiosks Restaurant Ordering Web Application
+# 🍽️ GrabNGo Restaurant Ordering Web Application
 
-A modern, full-stack restaurant ordering system built with **React.js**, **Node.js**, and **MongoDB**. This application provides a seamless ordering experience for customers and comprehensive management tools for restaurant administrators.
+A modern, full-stack restaurant ordering system built with **React.js**, **Node.js**, and **MongoDB**. This application provides a seamless ordering experience for customers with a unique, minimalist "claim ticket" aesthetic, and comprehensive management tools for restaurant administrators.
 
 ## 🚀 Live Demo
 
@@ -34,6 +34,12 @@ A modern, full-stack restaurant ordering system built with **React.js**, **Node.
 - **📱 Responsive Design** - Optimized for desktop, tablet, and mobile devices
 
 > **Note:** All features except registration and login require user authentication. The application automatically redirects unauthenticated users to the login page.
+
+### 🎨 Design & Aesthetic
+- **Claim Ticket Interface** - The entire app is styled like physical takeaway claim tickets. No bulky shadows or messy 3D effects; just clean lines, dashed separators, and sharp layouts.
+- **Paper & Ink Palette** - Utilizes a warm kraft paper background (`#F3EAD9`) with deep ink text (`#241F1A`) and a single, striking red stamp accent (`#D6432E`).
+- **Typography** - Built on `Space Mono` for pricing and data to emulate printed receipts, paired with a clean geometric sans-serif for legibility.
+- **Micro-interactions** - Frosted glass (`backdrop-filter`) navigation, skeleton loaders that match the ticket shape, and smooth structural transitions without over-animating.
 
 ### Admin Features
 - **Admin Dashboard** - Comprehensive overview of restaurant operations

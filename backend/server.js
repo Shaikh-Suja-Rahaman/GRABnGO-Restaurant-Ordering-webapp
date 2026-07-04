@@ -15,10 +15,17 @@ const PORT = process.env.PORT || 10000; // Change 5001 to 10000
 
 app.use(express.json());
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://kiosks-restaurant-ordering-webapp.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    const allowed = [
+      'https://kiosks-restaurant-ordering-webapp.vercel.app',
+    ];
+    // Allow any localhost origin (any port) for local development
+    if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -32,8 +39,6 @@ mongoose.connect(process.env.MONGO_URI)
   });
 }).catch((err) => console.log("MongoDB connection error", err))
 
-
-
 app.get('/', (req, res)=>{ //test route
   res.status(200).send("API CALL TO TEST STUFF")
 })
@@ -41,7 +46,6 @@ app.get('/', (req, res)=>{ //test route
 app.use('/api/auth', AuthRoutes) //send all the auth related tasks to this route
 app.use('/api/menu', MenuRoutes)
 app.use('/api/orders', orderRoutes);
-
 
 app.use('/api/favorites', favoritesRoutes)
 app.use("/api/payments", paymentRoutes);

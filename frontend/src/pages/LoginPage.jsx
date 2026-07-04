@@ -3,30 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCredentials, setLoading, setError } from '../redux/slices/authSlice';
-import { Mail, Lock, Loader2, LogIn, UserPlus } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+
 const apiUrl = import.meta.env.VITE_API_URL;
-const LoginPage = () => {
-  const [email, setEmail] = useState('');
+
+export default function LoginPage() {
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { userInfo, loading, error } = useSelector((state) => state.auth);
+  const { userInfo, loading, error } = useSelector((s) => s.auth);
 
-  useEffect(() => {
-    if (userInfo) {
-      navigate('/');
-    }
-  }, [userInfo, navigate]);
+  useEffect(() => { if (userInfo) navigate('/'); }, [userInfo, navigate]);
 
-  const submitHandler = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     dispatch(setLoading());
     try {
-      const res = await axios.post(
-        `${apiUrl}/api/auth/login`,
-        { email, password }
-      );
+      const res = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
       dispatch(setCredentials(res.data));
       navigate('/');
     } catch (err) {
@@ -35,114 +30,92 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-[#FFF8F0] to-[#F5E6D3] flex items-center justify-center px-6 overflow-hidden">
-      <div className="w-full max-w-md">
-        <div className="bg-[#FFF8F0] rounded-2xl shadow-2xl overflow-hidden border-2 border-[#8B4049]/10">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#8B4049] to-[#6B3039] px-6 py-6 text-center">
-            <div className="w-16 h-16 bg-[#FFF8F0] rounded-full mx-auto mb-3 flex items-center justify-center">
-              <LogIn className="w-8 h-8 text-[#8B4049]" />
+    <div className="page-enter" style={{
+      minHeight: '100vh',
+      background: 'var(--color-background)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+    }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        {/* Brand */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <p className="t-brand" style={{ fontSize: '36px', display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
+            GRAB<span style={{ fontSize: '0.85em', margin: '0 2px', textTransform: 'lowercase' }}>n</span>GO
+          </p>
+          <p className="t-desc" style={{ marginTop: '4px' }}>Claim your order ticket</p>
+        </div>
+
+        {/* Card */}
+        <div className="card" style={{ padding: '32px' }}>
+          {error && (
+            <div style={{
+              background: 'transparent', border: '1px dashed var(--color-stamp)',
+              borderRadius: '8px', padding: '10px 14px', marginBottom: '20px',
+            }}>
+              <p style={{ color: 'var(--color-stamp)', fontSize: '13px', fontWeight: 500, fontFamily: 'var(--font-mono)' }}>{error}</p>
             </div>
-            <h1 className="text-3xl font-serif font-bold text-[#FFF8F0] mb-1">
-              Welcome Back
-            </h1>
-            <p className="text-[#FFF8F0] text-sm opacity-90">
-              Login to continue your culinary journey
-            </p>
+          )}
+
+          <form onSubmit={submit}>
+            {/* Email */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Email
+              </label>
+              <input
+                id="login-email"
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                required placeholder="you@example.com"
+                className="input-clean"
+              />
+            </div>
+
+            {/* Password */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--color-ink)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Password
+              </label>
+              <input
+                id="login-password"
+                type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                required placeholder="••••••••"
+                className="input-clean"
+              />
+            </div>
+
+            <button
+              id="login-submit"
+              type="submit" disabled={loading}
+              className="btn-cta"
+              style={{ width: '100%', padding: '14px', fontSize: '15px', borderRadius: '12px' }}
+            >
+              {loading
+                ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> STAMPING…</>
+                : 'SIGN IN'}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '24px 0' }}>
+            <div style={{ flex: 1, borderTop: '1px dashed rgba(36, 31, 26, 0.15)' }} />
+            <span className="t-desc" style={{ fontSize: '12px' }}>or</span>
+            <div style={{ flex: 1, borderTop: '1px dashed rgba(36, 31, 26, 0.15)' }} />
           </div>
 
-          {/* Form Container */}
-          <div className="px-6 py-6">
-            {error && (
-              <div className="mb-4 bg-red-50 border-2 border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-xs font-semibold text-center">{error}</p>
-              </div>
-            )}
-
-            <form onSubmit={submitHandler} className="space-y-4">
-              {/* Email Field */}
-              <div>
-                <label className="block text-[#8B4049] font-semibold mb-1.5 text-xs uppercase tracking-wide">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="w-4 h-4 text-[#8B4049]/50" />
-                  </div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-3 py-2.5 border-2 border-[#8B4049]/20 rounded-lg focus:outline-none focus:border-[#8B4049] transition-colors bg-white text-[#8B4049] placeholder-gray-400 text-sm"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <label className="block text-[#8B4049] font-semibold mb-1.5 text-xs uppercase tracking-wide">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-[#8B4049]/50" />
-                  </div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full pl-10 pr-3 py-2.5 border-2 border-[#8B4049]/20 rounded-lg focus:outline-none focus:border-[#8B4049] transition-colors bg-white text-[#8B4049] placeholder-gray-400 text-sm"
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#8B4049] text-[#FFF8F0] py-3 rounded-lg font-bold hover:bg-[#6B3039] transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Logging in...
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4 h-4" />
-                    Login
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="my-4 flex items-center">
-              <div className="flex-1 border-t border-[#8B4049]/20"></div>
-              <span className="px-3 text-xs text-gray-500">or</span>
-              <div className="flex-1 border-t border-[#8B4049]/20"></div>
-            </div>
-
-            {/* Register Link */}
-            <div className="text-center">
-              <p className="text-gray-600 text-xs mb-2">Don't have an account?</p>
-              <button
-                onClick={() => navigate('/register')}
-                className="w-full bg-[#FFF8F0] text-[#8B4049] py-2.5 rounded-lg font-semibold border-2 border-[#8B4049] hover:bg-[#8B4049] hover:text-[#FFF8F0] transition-colors flex items-center justify-center gap-2 text-sm"
-              >
-                <UserPlus className="w-4 h-4" />
-                Create New Account
-              </button>
-            </div>
-          </div>
+          <button
+            id="goto-register"
+            onClick={() => navigate('/register')}
+            className="btn-outline"
+            style={{ width: '100%', padding: '13px', fontSize: '14px', borderRadius: '12px' }}
+          >
+            CREATE AN ACCOUNT
+          </button>
         </div>
       </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
-};
-
-export default LoginPage;
+}

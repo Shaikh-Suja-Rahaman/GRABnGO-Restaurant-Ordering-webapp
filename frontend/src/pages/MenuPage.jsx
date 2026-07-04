@@ -1,372 +1,514 @@
-import React, { useEffect, useState } from 'react'; // <-- 1. Import useState
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { Heart, ShoppingCart, Loader2, Plus, Minus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, Plus, Minus, Search, X, Github, LogOut } from 'lucide-react';
+
 const apiUrl = import.meta.env.VITE_API_URL;
-// Import actions (all of this is unchanged)
+
 import { menuRequest, menuSuccess, menuFail } from '../redux/slices/menuSlice';
 import { addToCart, removeFromCart } from '../redux/slices/cartSlice';
+import { logout } from '../redux/slices/authSlice';
+import { orderReset } from '../redux/slices/orderSlice';
 import {
-  favoritesRequest,
-  favoritesSuccess,
-  favoritesFail,
-  favoriteAddRequest,
-  favoriteAddSuccess,
-  favoriteAddFail,
-  favoriteRemoveRequest,
-  favoriteRemoveSuccess,
-  favoriteRemoveFail,
+  favoritesRequest, favoritesSuccess, favoritesFail,
+  favoriteAddRequest, favoriteAddSuccess, favoriteAddFail,
+  favoriteRemoveRequest, favoriteRemoveSuccess, favoriteRemoveFail,
 } from '../redux/slices/favoritesSlice';
 
-// MenuCard Component
-const MenuCard = ({
-  item,
-  isFavorited,
-  onAddToCart,
-  onIncreaseQty,
-  onDecreaseQty,
-  onToggleFavorite,
-  isLoading,
-  userInfo,
-  cartQuantity = 0
-}) => {
+// ─── Category list ─────────────────────────────────────
+const CATEGORIES = ['All', 'Burgers', 'Meals', 'Pizzas', 'Biryanis', 'Sandwich', 'Hot Beverages', 'Cold Beverages'];
+
+// ─── FoodTicket Component ──────────────────────────
+function FoodTicket({ item, cartQty, isFav, onAdd, onInc, onDec, onFav, favLoading, showFav, onImageClick }) {
+  const [imgErr, setImgErr] = useState(false);
+  const inCart = cartQty > 0;
+
   return (
-    <div className="bg-[#FFF8F0] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-      {/* Image Section */}
-      <div className="relative h-56 overflow-hidden bg-[#8B4049]">
-        {item.imageUrl ? (
+    <div className="card" style={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center', // vertically center contents
+      position: 'relative',
+      padding: '12px',      // inner padding so it doesn't bleed to edge
+      gap: '16px',          // gap between image and info
+      height: '144px',
+    }}>
+      
+      {/* ── Fixed Heart Button (Stamp Color) ── */}
+      {showFav && (
+        <button
+          id={`fav-${item._id}`}
+          onClick={() => onFav(item)}
+          disabled={favLoading}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'var(--color-card-surface)',
+            border: '1px solid rgba(36, 31, 26, 0.08)',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 10,
+            opacity: favLoading ? 0.4 : 1,
+            boxShadow: '0 2px 4px rgba(36, 31, 26, 0.05)'
+          }}
+        >
+          <Heart
+            size={16}
+            style={{ 
+              color: isFav ? 'var(--color-stamp)' : 'var(--color-ink)', 
+              fill: isFav ? 'var(--color-stamp)' : 'none', 
+              opacity: isFav ? 1 : 0.4,
+              transition: 'fill 150ms ease, color 150ms ease, opacity 150ms ease' 
+            }}
+          />
+        </button>
+      )}
+
+      {/* ── Image (Left) ── */}
+      <div 
+        onClick={() => onImageClick(item)}
+        style={{
+          width: '120px',
+          minWidth: '120px',
+          height: '120px',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          background: 'var(--color-card-border)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      >
+        {item.imageUrl && !imgErr ? (
           <img
             src={item.imageUrl}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-            // Add a fallback in case the image is broken
-            onError={(e) => { e.target.src = 'https://placehold.co/600x400/EED8C6/8B4513?text=Image+Broken'; }}
+            onError={() => setImgErr(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#8B4049] to-[#6B3039]">
-            <span className="text-[#FFF8F0] text-6xl font-serif">
-              {item.name.charAt(0)}
-            </span>
-          </div>
-        )}
-
-        {/* Favorite Button Overlay */}
-        {userInfo && (
-          <button
-            onClick={() => onToggleFavorite(item)}
-            disabled={isLoading}
-            className="absolute top-3 right-3 bg-[#FFF8F0] rounded-full p-2 shadow-md hover:scale-110 transition-transform disabled:opacity-50"
-          >
-            <Heart
-              className={`w-5 h-5 ${
-                isFavorited ? 'fill-[#8B4049] stroke-[#8B4049]' : 'stroke-[#8B4049]'
-              }`}
-            />
-          </button>
+          <span style={{ fontSize: '24px', color: 'var(--color-ink)', opacity: 0.3, fontFamily: 'var(--font-display)' }}>
+            {item.name.charAt(0)}
+          </span>
         )}
       </div>
 
-      {/* Content Section */}
-      <div className="p-5">
-        <h3 className="text-2xl font-serif text-[#8B4049] mb-2 font-bold">
-          {item.name}
-        </h3>
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">
-          {item.description}
-        </p>
-        <div className="flex items-center justify-between mt-4">
-          <span className="text-3xl font-bold text-[#8B4049]">
-            Rs {item.price.toFixed(2)}
-          </span>
-
-          {/* Conditional rendering: Show quantity controls if in cart, otherwise show Add to Cart button */}
-          {cartQuantity > 0 ? (
-            <div className="flex items-center gap-2 bg-[#8B4049] text-[#FFF8F0] px-3 py-2 rounded-full shadow-md">
-              <button
-                onClick={() => onDecreaseQty(item)}
-                className="w-7 h-7 rounded-full bg-[#FFF8F0]/20 hover:bg-[#FFF8F0]/30 transition-colors flex items-center justify-center"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-
-              <span className="w-8 text-center font-semibold text-lg">
-                {cartQuantity}
-              </span>
-
-              <button
-                onClick={() => onIncreaseQty(item)}
-                disabled={cartQuantity >= 10}
-                className="w-7 h-7 rounded-full bg-[#FFF8F0]/20 hover:bg-[#FFF8F0]/30 transition-colors flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => onAddToCart(item)}
-              className="bg-[#8B4049] text-[#FFF8F0] px-5 py-2.5 rounded-full font-semibold hover:bg-[#6B3039] transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Add to Cart
-            </button>
+      {/* ── Info & Actions (Right) ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, justifyContent: 'center', height: '100%' }}>
+        
+        {/* Row 1: Name & Desc */}
+        <div style={{ paddingRight: '28px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <p className="t-name" style={{ 
+            marginBottom: '4px', 
+            display: '-webkit-box', 
+            WebkitLineClamp: 1, 
+            WebkitBoxOrient: 'vertical', 
+            overflow: 'hidden' 
+          }}>
+            {item.name}
+          </p>
+          {item.description && (
+            <p className="t-desc" style={{
+              margin: '0',
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}>
+              {item.description}
+            </p>
           )}
         </div>
+
+        {/* Row 2: Price & Action */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <p className="t-price" style={{ fontSize: '18px' }}>₹{item.price.toFixed(0)}</p>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            {inCart ? (
+              <div className="qty-stepper">
+                <button className="qty-btn" id={`dec-${item._id}`} onClick={() => onDec(item)}>
+                  <Minus size={14} strokeWidth={3} />
+                </button>
+                <span className="qty-count">{cartQty}</span>
+                <button
+                  className="qty-btn" id={`inc-${item._id}`}
+                  onClick={() => onInc(item)}
+                  disabled={cartQty >= 10}
+                >
+                  <Plus size={14} strokeWidth={3} />
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="btn-add"
+                id={`add-${item._id}`} 
+                onClick={() => onAdd(item)} 
+                aria-label={`Add ${item.name}`}
+              >
+                ADD <Plus size={14} strokeWidth={3} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-// --- 2. ADD A CATEGORY LIST ---
-// (I corrected "sandwhich" to "sandwich")
-const categories = [
-  'All',
-  'Burgers',
-  'Meals',
-  'Pizzas',
-  'Biryanis',
-  'Sandwich',
-  'Hot Beverages',
-  'Cold Beverages',
-];
-
-// Main MenuPage Component
-const MenuPage = () => {
+// ─── Main MenuPage ─────────────────────────────────────
+export default function MenuPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [selectedCat, setSelectedCat] = useState('All');
+  const [selectedItem, setSelectedItem] = useState(null); // State for modal
+  const [searchQuery, setSearchQuery] = useState(''); // State for search bar
 
-  // --- 3. ADD STATE FOR THE SELECTED CATEGORY ---
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const { items, loading, error } = useSelector((s) => s.menu);
+  const safeItems = Array.isArray(items) ? items : [];
+  const { userInfo } = useSelector((s) => s.auth);
+  const { cartItems } = useSelector((s) => s.cart);
+  const { favorites, loadingAdd, loadingRemove } = useSelector((s) => s.favorites);
 
-  // Get state from slices
-    const { items, loading, error } = useSelector((state) => state.menu);
-    // Ensure items is always an array
-    const safeItems = Array.isArray(items) ? items : [];
-  const { userInfo } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.cart);
-  const {
-    favorites,
-    loading: loadingFav,
-    error: errorFav,
-    loadingAdd,
-    loadingRemove,
-  } = useSelector((state) => state.favorites);
-
-  // All useEffects and handlers are unchanged
-  // ... (useEffect: Fetch menu) ...
   useEffect(() => {
-    const fetchMenuItems = async () => {
+    const load = async () => {
       try {
         dispatch(menuRequest());
-        const res = await axios.get(`${apiUrl}/api/menu`);
-        dispatch(menuSuccess(res.data));
-      } catch (err) {
-        dispatch(menuFail(err.response?.data?.message || err.message));
-      }
+        const { data } = await axios.get(`${apiUrl}/api/menu`);
+        dispatch(menuSuccess(data));
+      } catch (e) { dispatch(menuFail(e.response?.data?.message || e.message)); }
     };
-    fetchMenuItems();
+    load();
   }, [dispatch]);
 
-  // ... (useEffect: Fetch favorites) ...
   useEffect(() => {
-    if (userInfo) {
-      const fetchFavorites = async () => {
-        try {
-          dispatch(favoritesRequest());
-          const { token } = userInfo;
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          };
-          const { data } = await axios.get(
-            `${apiUrl}/api/favorites`,
-            config
-          );
-          dispatch(favoritesSuccess(data));
-        } catch (err) {
-          dispatch(favoritesFail(err.response?.data?.message || err.message));
-        }
-      };
-      fetchFavorites();
-    }
+    if (!userInfo) return;
+    const load = async () => {
+      try {
+        dispatch(favoritesRequest());
+        const { data } = await axios.get(`${apiUrl}/api/favorites`, {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        });
+        dispatch(favoritesSuccess(data));
+      } catch (e) { dispatch(favoritesFail(e.response?.data?.message || e.message)); }
+    };
+    load();
   }, [dispatch, userInfo]);
 
-  // ... (addToCartHandler) ...
-  const addToCartHandler = (item) => {
-    const qty = 1;
-    dispatch(addToCart({ ...item, quantity: qty }));
+  const onAdd = (item) => dispatch(addToCart({ ...item, quantity: 1 }));
+  const onInc = (item) => {
+    const c = cartItems.find((x) => x._id === item._id);
+    if (c && c.quantity < 10) dispatch(addToCart({ ...item, quantity: c.quantity + 1 }));
+  };
+  const onDec = (item) => {
+    const c = cartItems.find((x) => x._id === item._id);
+    if (!c) return;
+    c.quantity > 1 ? dispatch(addToCart({ ...item, quantity: c.quantity - 1 })) : dispatch(removeFromCart(item._id));
   };
 
-  // Handler to increase quantity
-  const increaseQtyHandler = (item) => {
-    const cartItem = cartItems.find((x) => x._id === item._id);
-    if (cartItem && cartItem.quantity < 10) {
-      dispatch(addToCart({ ...item, quantity: cartItem.quantity + 1 }));
-    }
-  };
-
-  // Handler to decrease quantity or remove if quantity becomes 0
-  const decreaseQtyHandler = (item) => {
-    const cartItem = cartItems.find((x) => x._id === item._id);
-    if (cartItem) {
-      if (cartItem.quantity > 1) {
-        dispatch(addToCart({ ...item, quantity: cartItem.quantity - 1 }));
-      } else {
-        // Remove from cart if quantity is 1
-        dispatch(removeFromCart(item._id));
-      }
-    }
-  };
-
-  // ... (addFavoriteHandler) ...
-  const addFavoriteHandler = async (item) => {
-    dispatch(favoriteAddRequest());
-    try {
-      const { token } = userInfo;
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      await axios.post(
-        `${apiUrl}/api/favorites`,
-        { menuItemId: item._id },
-        config
-      );
-      dispatch(favoriteAddSuccess(item));
-    } catch (err) {
-      dispatch(favoriteAddFail(err.response?.data?.message || err.message));
-    }
-  };
-
-  // ... (removeFavoriteHandler) ...
-  const removeFavoriteHandler = async (itemId) => {
-    dispatch(favoriteRemoveRequest());
-    try {
-      const { token } = userInfo;
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      await axios.delete(
-        `${apiUrl}/api/favorites/${itemId}`,
-        config
-      );
-      dispatch(favoriteRemoveSuccess(itemId));
-    } catch (err) {
-      dispatch(favoriteRemoveFail(err.response?.data?.message || err.message));
-    }
-  };
-
-  // ... (toggleFavoriteHandler) ...
-  const toggleFavoriteHandler = (item) => {
-    const isFavorited = favorites.some((favItem) => favItem._id === item._id);
-    if (isFavorited) {
-      removeFavoriteHandler(item._id);
+  const onFav = async (item) => {
+    const isFav = favorites.some((f) => f._id === item._id);
+    if (isFav) {
+      dispatch(favoriteRemoveRequest());
+      try {
+        await axios.delete(`${apiUrl}/api/favorites/${item._id}`, {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        });
+        dispatch(favoriteRemoveSuccess(item._id));
+      } catch (e) { dispatch(favoriteRemoveFail(e.response?.data?.message || e.message)); }
     } else {
-      addFavoriteHandler(item);
+      dispatch(favoriteAddRequest());
+      try {
+        await axios.post(`${apiUrl}/api/favorites`, { menuItemId: item._id }, {
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${userInfo.token}` },
+        });
+        dispatch(favoriteAddSuccess(item));
+      } catch (e) { dispatch(favoriteAddFail(e.response?.data?.message || e.message)); }
     }
   };
 
-  // --- 4. CREATE THE FILTERED LIST ---
-  // This logic runs before rendering
-  const filteredItems =
-    selectedCategory === 'All'
-      ? safeItems
-      : safeItems.filter(
-          (item) =>
-            item.category &&
-            item.category.trim().toLowerCase() === selectedCategory.trim().toLowerCase()
-        );
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(orderReset());
+    navigate('/login');
+  };
+
+  const filtered = safeItems.filter((i) => {
+    const matchesCat = selectedCat === 'All' || i.category?.trim().toLowerCase() === selectedCat.trim().toLowerCase();
+    const matchesSearch = i.name.toLowerCase().includes(searchQuery.toLowerCase()) || i.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
+
+  const grouped = selectedCat === 'All'
+    ? CATEGORIES.slice(1).reduce((acc, cat) => {
+        const items = filtered.filter((i) => i.category?.trim().toLowerCase() === cat.toLowerCase());
+        if (items.length) acc.push({ cat, items });
+        return acc;
+      }, [])
+    : [{ cat: selectedCat, items: filtered }];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF8F0] to-[#F5E6D3]">
-      {/* Header (unchanged) */}
-      <div className="bg-[#8B4049] shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-12 text-center">
-          <h1 className="text-5xl font-serif font-bold text-[#FFF8F0] mb-2">
-            Our Menu
-          </h1>
-          <p className="text-[#FFF8F0] text-lg opacity-90">
-            Discover our exquisite selection of culinary delights
-          </p>
+    <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
+      {/* ── Sticky Page Header ── */}
+      <div style={{
+        background: 'var(--color-background)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+      }}>
+        <div style={{
+          position: 'absolute', bottom: '-20px', left: 0, right: 0, height: '20px',
+          background: 'linear-gradient(to bottom, var(--color-background) 0%, transparent 100%)',
+          pointerEvents: 'none'
+        }}/>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '24px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <p className="t-brand" style={{ display: 'flex', alignItems: 'baseline' }}>
+              GRAB<span style={{ fontSize: '0.85em', margin: '0 2px', textTransform: 'lowercase' }}>n</span>GO
+            </p>
+          </div>
+          
+          {/* Search Bar & Links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', maxWidth: '340px' }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-ink)', opacity: 0.5 }} />
+              <input 
+                type="text" 
+                placeholder="SEARCH MENU..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-clean" 
+                style={{ paddingLeft: '40px' }} 
+              />
+            </div>
+            <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: 'var(--color-ink)', opacity: 0.6, display: 'flex', flexShrink: 0 }}>
+              <Github size={24} />
+            </a>
+            {userInfo && (
+              <button 
+                onClick={handleLogout}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ink)', opacity: 0.7, padding: '8px', display: 'flex', flexShrink: 0 }}
+                aria-label="Logout"
+              >
+                <LogOut size={24} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* --- 5. ADD THE CATEGORY FILTER BAR --- */}
-        <div className="mb-8 flex justify-center flex-wrap gap-3">
-          {categories.map((category) => (
+      {/* ── Main Content Layout ── */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+        
+        {/* Left Sidebar (Categories) */}
+        <aside style={{ 
+          width: '200px', 
+          flexShrink: 0, 
+          position: 'sticky', 
+          top: '100px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px'
+        }}>
+          <p className="t-section" style={{ marginBottom: '12px', paddingLeft: '16px' }}>Menu</p>
+          {CATEGORIES.map((cat) => (
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-5 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-md
-                ${
-                  selectedCategory === category
-                    ? 'bg-[#8B4049] text-[#FFF8F0] ring-2 ring-offset-2 ring-[#8B4049]'
-                    : 'bg-[#FFF8F0] text-[#8B4049] hover:bg-[#8B4049] hover:text-[#FFF8F0] hover:shadow-lg'
-                }
-              `}
+              key={cat}
+              id={`cat-${cat.replace(/\s+/g, '-').toLowerCase()}`}
+              onClick={() => setSelectedCat(cat)}
+              className={`cat-item ${selectedCat === cat ? 'cat-item-active' : ''}`}
             >
-              {category}
+              {cat}
             </button>
           ))}
-        </div>
-        {/* --- END OF NEW SECTION --- */}
+        </aside>
 
-        {/* 6. UPDATE THE RENDER LOGIC --- */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-[#8B4049] animate-spin mb-4" />
-            <p className="text-[#8B4049] text-lg">Loading our delicious menu...</p>
-          </div>
-        ) : error ? (
-          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-600 text-lg font-semibold">{error}</p>
-          </div>
-        ) : (
-          // Check if the *filtered* list is empty
-          filteredItems.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-[#8B4049] text-lg">
-                No items found in the "{selectedCategory}" category.
-              </p>
+        {/* Right Content Grid */}
+        <main style={{ flex: 1 }}>
+          {loading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="card" style={{ display: 'flex', flexDirection: 'row', height: '140px' }}>
+                  <div style={{ width: '120px', background: 'var(--color-card-border)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  <div style={{ padding: '16px', flex: 1 }}>
+                    <div style={{ height: 16, width: '60%', background: 'var(--color-card-border)', borderRadius: 4, marginBottom: 12, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div style={{ padding: '32px 16px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--color-stamp)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>ERR: {error}</p>
             </div>
           ) : (
-            // Map over *filteredItems* instead of *items*
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredItems.map((item) => {
-                const isFavorited = favorites.some(
-                  (favItem) => favItem._id === item._id
-                );
+            grouped.map(({ cat, items: catItems }) => (
+              <div key={cat} style={{ marginBottom: '40px' }}>
+                {selectedCat === 'All' && (
+                  <p className="t-section" style={{ marginBottom: '16px', paddingBottom: '8px', opacity: 0.8 }}>
+                    {cat}
+                  </p>
+                )}
 
-                // Find the quantity of this item in cart
-                const cartItem = cartItems.find((cartItem) => cartItem._id === item._id);
-                const cartQuantity = cartItem ? cartItem.quantity : 0;
-
-                return (
-                  <MenuCard
-                    key={item._id}
-                    item={item}
-                    isFavorited={isFavorited}
-                    onAddToCart={addToCartHandler}
-                    onIncreaseQty={increaseQtyHandler}
-                    onDecreaseQty={decreaseQtyHandler}
-                    onToggleFavorite={toggleFavoriteHandler}
-                    isLoading={loadingAdd || loadingRemove}
-                    userInfo={userInfo}
-                    cartQuantity={cartQuantity}
-                  />
-                );
-              })}
-            </div>
-          )
-        )}
+                {catItems.length === 0 ? (
+                  <div style={{ padding: '24px', color: 'var(--color-ink)', opacity: 0.5, fontSize: '14px', background: 'var(--color-card-surface)', borderRadius: '8px', textAlign: 'center', border: '1px solid var(--color-card-border)' }}>
+                    EMPTY CATEGORY
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                    gap: '12px' // Strict 12px gap
+                  }}>
+                    {catItems.map((item) => {
+                      const cartItem = cartItems.find((c) => c._id === item._id);
+                      return (
+                        <FoodTicket
+                          key={item._id}
+                          item={item}
+                          cartQty={cartItem?.quantity ?? 0}
+                          isFav={favorites.some((f) => f._id === item._id)}
+                          onAdd={onAdd}
+                          onInc={onInc}
+                          onDec={onDec}
+                          onFav={onFav}
+                          favLoading={loadingAdd || loadingRemove}
+                          showFav={!!userInfo}
+                          onImageClick={setSelectedItem}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </main>
       </div>
+
+      {/* ── Item Detail Modal (Claim Ticket Style) ── */}
+      {selectedItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(36, 31, 26, 0.7)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }} onClick={() => setSelectedItem(null)}>
+          <div style={{
+            background: 'var(--color-card-surface)',
+            borderRadius: '8px',
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            position: 'relative',
+            border: '1px solid var(--color-card-border)',
+          }} onClick={(e) => e.stopPropagation()} className="page-enter">
+            
+            <button 
+              onClick={() => setSelectedItem(null)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'var(--color-background)',
+                border: '1px solid var(--color-card-border)',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 10,
+              }}
+            >
+              <X size={16} style={{ color: 'var(--color-ink)' }} />
+            </button>
+
+            <div style={{ width: '100%', height: '240px', background: 'var(--color-card-border)', overflow: 'hidden', borderBottom: '2px dashed var(--color-card-border)' }}>
+              {selectedItem.imageUrl ? (
+                <img src={selectedItem.imageUrl} alt={selectedItem.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '64px', color: 'var(--color-ink)', opacity: 0.1, fontFamily: 'var(--font-display)' }}>
+                    {selectedItem.name.charAt(0)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: '24px' }}>
+              <p className="t-page-title" style={{ fontSize: '24px', marginBottom: '12px' }}>{selectedItem.name}</p>
+              <p className="t-desc" style={{ fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
+                {selectedItem.description}
+              </p>
+              
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '2px solid var(--color-ink)' }}>
+                <p className="t-price" style={{ fontSize: '24px' }}>₹{selectedItem.price.toFixed(0)}</p>
+                
+                {(() => {
+                  const cartQty = cartItems.find((c) => c._id === selectedItem._id)?.quantity ?? 0;
+                  return cartQty > 0 ? (
+                    <div className="qty-stepper" style={{ height: '40px' }}>
+                      <button className="qty-btn" style={{ width: '40px' }} onClick={() => onDec(selectedItem)}>
+                        <Minus size={16} strokeWidth={3} />
+                      </button>
+                      <span className="qty-count" style={{ fontSize: '16px', padding: '0 8px' }}>{cartQty}</span>
+                      <button
+                        className="qty-btn" style={{ width: '40px' }}
+                        onClick={() => onInc(selectedItem)}
+                        disabled={cartQty >= 10}
+                      >
+                        <Plus size={16} strokeWidth={3} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button 
+                      className="btn-cta"
+                      onClick={() => onAdd(selectedItem)} 
+                    >
+                      Add to Cart <Plus size={16} strokeWidth={3} />
+                    </button>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
-};
-
-export default MenuPage;
+}

@@ -1,232 +1,269 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Loader2, Trash2, HeartOff } from 'lucide-react';
+import { Trash2, Plus, Loader2, Heart, LogOut } from 'lucide-react';
+
 const apiUrl = import.meta.env.VITE_API_URL;
-// Import all the actions we need
+
 import {
-  favoritesRequest,
-  favoritesSuccess,
-  favoritesFail,
-  favoriteRemoveRequest,
-  favoriteRemoveSuccess,
-  favoriteRemoveFail,
+  favoritesRequest, favoritesSuccess, favoritesFail,
+  favoriteRemoveRequest, favoriteRemoveSuccess, favoriteRemoveFail,
 } from '../redux/slices/favoritesSlice';
 import { addToCart } from '../redux/slices/cartSlice';
+import { logout } from '../redux/slices/authSlice';
 
-// FavoriteCard Component
-const FavoriteCard = ({ item, onRemoveFavorite, onAddToCart, isLoadingRemove }) => {
+// ─── Box Card Component (matching Menu) ────────────────
+function FavBox({ item, onAddToCart, onRemove, removing }) {
+  const [imgErr, setImgErr] = useState(false);
+
   return (
-    <div className="bg-[#FFF8F0] rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-      {/* Image Section */}
-      <div className="relative h-56 overflow-hidden bg-[#8B4049]">
-        {item.imageUrl ? (
+    <div className="card" style={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      position: 'relative',
+      padding: '12px',
+      gap: '16px',
+      height: '144px',
+    }}>
+      
+      {/* ── Fixed Trash Button ── */}
+      <button
+        id={`fav-remove-${item._id}`}
+        onClick={() => onRemove(item._id)}
+        disabled={removing}
+        style={{
+          position: 'absolute',
+          top: '12px',
+          right: '12px',
+          background: 'var(--color-card-surface)',
+          border: '1px solid rgba(36, 31, 26, 0.08)',
+          borderRadius: '50%',
+          width: '32px',
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 10,
+          opacity: removing ? 0.4 : 1,
+          transition: 'transform 150ms',
+        }}
+        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
+        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <Trash2 size={15} style={{ color: 'var(--color-ink)', opacity: 0.7 }} />
+      </button>
+
+      {/* ── Image ── */}
+      <div style={{
+        width: '120px',
+        minWidth: '120px',
+        height: '120px',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        background: 'var(--color-card-border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+        {item.imageUrl && !imgErr ? (
           <img
             src={item.imageUrl}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+            onError={() => setImgErr(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#8B4049] to-[#6B3039]">
-            <span className="text-[#FFF8F0] text-6xl font-serif">
-              {item.name.charAt(0)}
-            </span>
-          </div>
+          <span style={{ fontSize: '28px', color: 'var(--color-ink)', opacity: 0.5, fontFamily: 'serif' }}>
+            {item.name.charAt(0)}
+          </span>
         )}
-
-        {/* Favorite Badge */}
-        <div className="absolute top-3 right-3">
-          <div className="bg-[#FFF8F0] rounded-full p-2 shadow-lg">
-            <Heart className="w-5 h-5 fill-[#8B4049] stroke-[#8B4049]" />
-          </div>
-        </div>
       </div>
 
-      {/* Content Section */}
-      <div className="p-5">
-        <h3 className="text-2xl font-serif text-[#8B4049] mb-2 font-bold">
-          {item.name}
-        </h3>
-
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">
-          {item.description}
-        </p>
-
-        {/* Price */}
-        <div className="mb-4">
-          <span className="text-3xl font-bold text-[#8B4049]">
-            Rs {item.price.toFixed(2)}
-          </span>
+      {/* ── Info & Actions (Right) ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, justifyContent: 'center', height: '100%' }}>
+        
+        {/* Row 1: Name & Desc */}
+        <div style={{ paddingRight: '28px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <p className="t-name" style={{ 
+            marginBottom: '4px', 
+            display: '-webkit-box', 
+            WebkitLineClamp: 2, 
+            WebkitBoxOrient: 'vertical', 
+            overflow: 'hidden' 
+          }}>
+            {item.name}
+          </p>
+          {item.description && (
+            <p className="t-desc" style={{
+              overflow: 'hidden',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}>
+              {item.description}
+            </p>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={() => onAddToCart(item)}
-            className="flex-1 bg-[#8B4049] text-[#FFF8F0] px-4 py-2.5 rounded-full font-semibold hover:bg-[#6B3039] transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Add to Cart
-          </button>
+        {/* Row 2: Price & Action */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <p className="t-price" style={{ fontSize: '18px' }}>₹{item.price.toFixed(0)}</p>
 
-          <button
-            onClick={() => onRemoveFavorite(item._id)}
-            disabled={isLoadingRemove}
-            className="bg-red-50 text-red-600 px-4 py-2.5 rounded-full font-semibold hover:bg-red-100 transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border-2 border-red-200"
-          >
-            <Trash2 className="w-4 h-4" />
-            Remove
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button 
+              className="btn-add" 
+              id={`fav-add-${item._id}`} 
+              onClick={() => onAddToCart(item)} 
+              aria-label={`Add ${item.name} to cart`}
+            >
+              ADD <Plus size={14} strokeWidth={3} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
-// Main FavoritesPage Component
-const FavoritesPage = () => {
+// ─── Main FavoritesPage ────────────────────────────────
+export default function FavoritesPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get the state slices
-  const { userInfo } = useSelector((state) => state.auth);
-  const {
-    favorites,
-    loading,
-    error,
-    loadingRemove,
-  } = useSelector((state) => state.favorites);
+  const { userInfo } = useSelector((s) => s.auth);
+  const { favorites, loading, error, loadingRemove } = useSelector((s) => s.favorites);
 
-  // This useEffect fetches favorites on page load
   useEffect(() => {
-    if (!userInfo) {
-      navigate('/login');
-    } else {
-      // Only fetch if the list isn't already loaded
-      if (favorites.length === 0) {
-        const fetchFavorites = async () => {
-          try {
-            dispatch(favoritesRequest());
-            const { token } = userInfo;
-            const config = {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            };
-            const { data } = await axios.get(
-              `${apiUrl}/api/favorites`,
-              config
-            );
-            dispatch(favoritesSuccess(data));
-          } catch (err) {
-            dispatch(favoritesFail(err.response?.data?.message || err.message));
-          }
-        };
-        fetchFavorites();
-      }
-    }
+    if (!userInfo) { navigate('/login'); return; }
+    if (favorites.length > 0) return;
+    const load = async () => {
+      try {
+        dispatch(favoritesRequest());
+        const { data } = await axios.get(`${apiUrl}/api/favorites`, {
+          headers: { Authorization: `Bearer ${userInfo.token}` },
+        });
+        dispatch(favoritesSuccess(data));
+      } catch (e) { dispatch(favoritesFail(e.response?.data?.message || e.message)); }
+    };
+    load();
   }, [dispatch, navigate, userInfo, favorites.length]);
 
-  // Remove handler
-  const removeFavoriteHandler = async (itemId) => {
+  const handleRemove = async (itemId) => {
     dispatch(favoriteRemoveRequest());
     try {
-      const { token } = userInfo;
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      await axios.delete(
-        `${apiUrl}/api/favorites/${itemId}`,
-        config
-      );
+      await axios.delete(`${apiUrl}/api/favorites/${itemId}`, {
+        headers: { Authorization: `Bearer ${userInfo.token}` },
+      });
       dispatch(favoriteRemoveSuccess(itemId));
-    } catch (err) {
-      dispatch(favoriteRemoveFail(err.response?.data?.message || err.message));
-    }
+    } catch (e) { dispatch(favoriteRemoveFail(e.response?.data?.message || e.message)); }
   };
 
-  // Add to Cart handler
-  const addToCartHandler = (item) => {
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
+
+  const handleAddToCart = (item) => {
     dispatch(addToCart({ ...item, quantity: 1 }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF8F0] to-[#F5E6D3]">
-      {/* Header */}
-      <div className="bg-[#8B4049] shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-12 text-center">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <Heart className="w-10 h-10 text-[#FFF8F0] fill-[#FFF8F0]" />
-            <h1 className="text-5xl font-serif font-bold text-[#FFF8F0]">
-              My Favorites
-            </h1>
+    <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
+      {/* ── Sticky Page Header ── */}
+      <div style={{
+        background: 'var(--color-background)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+      }}>
+        <div style={{
+          position: 'absolute', bottom: '-20px', left: 0, right: 0, height: '20px',
+          background: 'linear-gradient(to bottom, var(--color-background) 0%, transparent 100%)',
+          pointerEvents: 'none'
+        }}/>
+
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '24px 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <div>
+            <p className="t-page-title">Saved</p>
+            <p className="t-desc" style={{ marginTop: '4px', letterSpacing: '0.2px' }}>
+              {loading ? '' : `${favorites.length} item${favorites.length !== 1 ? 's' : ''} saved`}
+            </p>
           </div>
-          <p className="text-[#FFF8F0] text-lg opacity-90">
-            Your most loved dishes, all in one place
-          </p>
+          {userInfo && (
+            <button 
+              onClick={handleLogout}
+              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ink)', opacity: 0.7, padding: '8px' }}
+              aria-label="Logout"
+            >
+              <LogOut size={24} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      {/* ── Content Grid ── */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '16px 20px 48px' }}>
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-[#8B4049] animate-spin mb-4" />
-            <p className="text-[#8B4049] text-lg">Loading your favorites...</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '64px 0', gap: '12px' }}>
+            <Loader2 size={22} style={{ color: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
+            <span className="t-desc">Loading…</span>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-8 text-center">
-            <p className="text-red-600 text-lg font-semibold mb-4">{error}</p>
-            <button
-              onClick={() => navigate('/')}
-              className="bg-[#8B4049] text-[#FFF8F0] px-6 py-3 rounded-lg font-semibold hover:bg-[#6B3039] transition-colors"
-            >
-              Return to Home
-            </button>
+          <div style={{ padding: '32px 16px', textAlign: 'center' }}>
+            <p style={{ color: '#991b1b', fontSize: '14px' }}>{error}</p>
           </div>
         ) : favorites.length === 0 ? (
-          <div className="bg-[#FFF8F0] rounded-lg shadow-lg p-12 text-center max-w-2xl mx-auto">
-            <HeartOff className="w-20 h-20 text-[#8B4049] mx-auto mb-4 opacity-50" />
-            <h2 className="text-2xl font-serif font-bold text-[#8B4049] mb-3">
-              No Favorites Yet
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Start adding dishes to your favorites by clicking the heart icon on any menu item!
+          <div style={{
+            background: 'var(--color-card-surface)', borderRadius: '16px',
+            border: '1px solid rgba(36, 31, 26, 0.08)',
+            padding: '64px 24px', textAlign: 'center',
+            maxWidth: '480px', margin: '40px auto',
+          }}>
+            <Heart size={40} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+            <p className="t-name" style={{ marginBottom: '8px' }}>
+              Nothing saved yet
             </p>
-            <button
-              onClick={() => navigate('/')}
-              className="bg-[#8B4049] text-[#FFF8F0] px-8 py-3 rounded-full font-semibold hover:bg-[#6B3039] transition-colors shadow-md hover:shadow-lg"
-            >
+            <p className="t-desc" style={{ marginBottom: '32px' }}>
+              Tap the ♥ icon on any menu item to save it here.
+            </p>
+            <button className="btn-cta" style={{ width: '100%' }} onClick={() => navigate('/')}>
               Browse Menu
             </button>
           </div>
         ) : (
-          <div>
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-[#8B4049] font-semibold text-lg">
-                <span className="text-2xl">{favorites.length}</span> {favorites.length === 1 ? 'Favorite' : 'Favorites'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {favorites.map((item) => (
-                <FavoriteCard
-                  key={item._id}
-                  item={item}
-                  onRemoveFavorite={removeFavoriteHandler}
-                  onAddToCart={addToCartHandler}
-                  isLoadingRemove={loadingRemove}
-                />
-              ))}
-            </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            gap: '24px'
+          }}>
+            {favorites.map((item) => (
+              <FavBox
+                key={item._id}
+                item={item}
+                onAddToCart={handleAddToCart}
+                onRemove={handleRemove}
+                removing={loadingRemove}
+              />
+            ))}
           </div>
         )}
       </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
-};
-
-export default FavoritesPage;
+}

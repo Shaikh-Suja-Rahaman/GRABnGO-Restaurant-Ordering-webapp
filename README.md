@@ -1,12 +1,30 @@
-# 🍽️ GrabNGo Restaurant Ordering Web Application
+<div align="center">
+  <img src="frontend/public/favicon.svg" alt="GrabNGo Logo" width="120" style="border-radius: 20px;" />
 
-A modern, full-stack restaurant ordering system built with **React.js**, **Node.js**, and **MongoDB**. This application provides a seamless ordering experience for customers with a unique, minimalist "claim ticket" aesthetic, and comprehensive management tools for restaurant administrators.
+  <h1>GrabNGo</h1>
 
-## 🚀 Live Demo
+  <p>
+    A modern, minimal restaurant ordering system with a unique "claim ticket" aesthetic.
+  </p>
+
+  <p>
+    React • Node.js • MongoDB <br/>
+  </p>
+</div>
+
+---
+
+## Overview
+
+**GrabNGo** is a full-stack restaurant ordering system that provides a seamless ordering experience for customers and comprehensive management tools for restaurant administrators.
+
+## Live Demo
 
 **Frontend:** [https://kiosks-restaurant-ordering-webapp.vercel.app](https://kiosks-restaurant-ordering-webapp.vercel.app)
 
-## 📋 Table of Contents
+---
+
+## Table of Contents
 
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
@@ -22,20 +40,20 @@ A modern, full-stack restaurant ordering system built with **React.js**, **Node.
 - [Contributing](#-contributing)
 - [License](#-license)
 
-## ✨ Features
+## Features
 
 ### Customer Features
-- **🔐 User Authentication** - Secure registration and login system (Required for access)
-- **📋 Browse Menu** - View restaurant menu with detailed item information
-- **🛒 Add to Cart** - Shopping cart functionality with quantity management
-- **❤️ Favorites System** - Save favorite menu items for quick access
-- **📦 Order Placement** - Easy checkout and order submission
-- **📜 Order History** - Track current and past orders
-- **📱 Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- ** User Authentication** - Secure registration and login system (Required for access)
+- ** Browse Menu** - View restaurant menu with detailed item information
+- ** Add to Cart** - Shopping cart functionality with quantity management
+- ** Favorites System** - Save favorite menu items for quick access
+- ** Order Placement** - Easy checkout and order submission
+- ** Order History** - Track current and past orders
+- ** Responsive Design** - Optimized for desktop, tablet, and mobile devices
 
 > **Note:** All features except registration and login require user authentication. The application automatically redirects unauthenticated users to the login page.
 
-### 🎨 Design & Aesthetic
+### Design & Aesthetic
 - **Claim Ticket Interface** - The entire app is styled like physical takeaway claim tickets. No bulky shadows or messy 3D effects; just clean lines, dashed separators, and sharp layouts.
 - **Paper & Ink Palette** - Utilizes a warm kraft paper background (`#F3EAD9`) with deep ink text (`#241F1A`) and a single, striking red stamp accent (`#D6432E`).
 - **Typography** - Built on `Space Mono` for pricing and data to emulate printed receipts, paired with a clean geometric sans-serif for legibility.
@@ -48,7 +66,7 @@ A modern, full-stack restaurant ordering system built with **React.js**, **Node.
 - **User Management** - Admin panel for user oversight
 - **Real-time Updates** - Live order tracking and status updates
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React.js 19** - Modern UI library with hooks
@@ -69,7 +87,7 @@ A modern, full-stack restaurant ordering system built with **React.js**, **Node.
 - **CORS** - Cross-origin resource sharing
 - **dotenv** - Environment variable management
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before running this project, make sure you have the following installed:
 
@@ -78,7 +96,7 @@ Before running this project, make sure you have the following installed:
 - **MongoDB** (local installation or MongoDB Atlas account)
 - **Git**
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
 ### 1. Clone the Repository
 
@@ -110,7 +128,7 @@ cd ../frontend
 npm install
 ```
 
-## 🌐 Environment Variables
+## Environment Variables
 
 ### Backend (.env)
 
@@ -164,12 +182,12 @@ The frontend is configured to work with the backend API. Update the API base URL
 ```javascript
 // In your API configuration file
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.MODE === 'production'
-    ? 'https://your-backend-url.com'
-    : 'http://localhost:10000');
+ (import.meta.env.MODE === 'production'
+ ? 'https://your-backend-url.com'
+ : 'http://localhost:10000');
 ```
 
-## 🚀 Running the Application
+## Running the Application
 
 ### Development Mode
 
@@ -190,8 +208,8 @@ npm run dev
 The frontend will start on `http://localhost:5173`
 
 3. **Access the Application**
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:10000`
+ - Frontend: `http://localhost:5173`
+ - Backend API: `http://localhost:10000`
 
 ### Production Mode
 
@@ -209,70 +227,70 @@ cd backend
 npm start
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Restaurant-Ordering-Web-App/
 │
 ├── backend/
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── favoritesController.js
-│   │   ├── menuController.js
-│   │   ├── orderController.js
-│   │   └── paymentController.js        # Razorpay create + verify
-│   ├── middleware/
-│   │   └── authMiddleware.js
-│   ├── models/
-│   │   ├── MenuItem.js
-│   │   ├── Order.js
-│   │   └── User.js
-│   ├── routes/
-│   │   ├── authRoutes.js
-│   │   ├── favoritesRoutes.js
-│   │   ├── menuRoutes.js
-│   │   ├── orderRoutes.js
-│   │   └── paymentRoutes.js            # /api/payments/create-order, /verify
-│   ├── public/
-│   ├── server.js
-│   └── package.json
+│ ├── controllers/
+│ │ ├── authController.js
+│ │ ├── favoritesController.js
+│ │ ├── menuController.js
+│ │ ├── orderController.js
+│ │ └── paymentController.js # Razorpay create + verify
+│ ├── middleware/
+│ │ └── authMiddleware.js
+│ ├── models/
+│ │ ├── MenuItem.js
+│ │ ├── Order.js
+│ │ └── User.js
+│ ├── routes/
+│ │ ├── authRoutes.js
+│ │ ├── favoritesRoutes.js
+│ │ ├── menuRoutes.js
+│ │ ├── orderRoutes.js
+│ │ └── paymentRoutes.js # /api/payments/create-order, /verify
+│ ├── public/
+│ ├── server.js
+│ └── package.json
 │
 ├── frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   │   ├── AdminRoute.jsx
-│   │   │   ├── BottomNavbar.jsx
-│   │   │   └── PrivateRoute.jsx
-│   │   ├── pages/
-│   │   │   ├── CartPage.jsx
-│   │   │   ├── FavoritesPage.jsx
-│   │   │   ├── LoginPage.jsx
-│   │   │   ├── MenuPage.jsx
-│   │   │   ├── OrderHistoryPage.jsx
-│   │   │   ├── RegisterPage.jsx
-│   │   │   ├── ContactPage.jsx
-│   │   │   ├── TermsPage.jsx
-│   │   │   ├── PrivacyPage.jsx
-│   │   │   ├── ShippingPage.jsx         # Razorpay-required policy page
-│   │   │   ├── RefundsPage.jsx          # Razorpay-required policy page
-│   │   │   └── admin/
-│   │   │       ├── AdminDashboard.jsx
-│   │   │       ├── AdminMenuCreatePage.jsx
-│   │   │       ├── AdminMenuEditPage.jsx
-│   │   │       ├── AdminMenuManager.jsx
-│   │   │       └── AdminOrderManager.jsx
-│   │   ├── redux/
-│   │   │   ├── store.js
-│   │   │   └── slices/ (auth, cart, order, favorites, menu, admin, etc.)
-│   │   ├── App.jsx
-│   │   ├── MainLayout.jsx
-│   │   ├── index.css
-│   │   └── main.jsx
-│   ├── index.html                      # includes Razorpay checkout script
-│   ├── vercel.json
-│   └── package.json
+│ ├── public/
+│ ├── src/
+│ │ ├── assets/
+│ │ ├── components/
+│ │ │ ├── AdminRoute.jsx
+│ │ │ ├── BottomNavbar.jsx
+│ │ │ └── PrivateRoute.jsx
+│ │ ├── pages/
+│ │ │ ├── CartPage.jsx
+│ │ │ ├── FavoritesPage.jsx
+│ │ │ ├── LoginPage.jsx
+│ │ │ ├── MenuPage.jsx
+│ │ │ ├── OrderHistoryPage.jsx
+│ │ │ ├── RegisterPage.jsx
+│ │ │ ├── ContactPage.jsx
+│ │ │ ├── TermsPage.jsx
+│ │ │ ├── PrivacyPage.jsx
+│ │ │ ├── ShippingPage.jsx # Razorpay-required policy page
+│ │ │ ├── RefundsPage.jsx # Razorpay-required policy page
+│ │ │ └── admin/
+│ │ │ ├── AdminDashboard.jsx
+│ │ │ ├── AdminMenuCreatePage.jsx
+│ │ │ ├── AdminMenuEditPage.jsx
+│ │ │ ├── AdminMenuManager.jsx
+│ │ │ └── AdminOrderManager.jsx
+│ │ ├── redux/
+│ │ │ ├── store.js
+│ │ │ └── slices/ (auth, cart, order, favorites, menu, admin, etc.)
+│ │ ├── App.jsx
+│ │ ├── MainLayout.jsx
+│ │ ├── index.css
+│ │ └── main.jsx
+│ ├── index.html # includes Razorpay checkout script
+│ ├── vercel.json
+│ └── package.json
 └── README.md
 ```
 
@@ -291,7 +309,7 @@ This app uses Razorpay in **test mode**. To complete a test payment, choose **Wa
 - Frontend uses `VITE_RAZORPAY_KEY_ID` in checkout options.
 - Orders persist only after successful signature verification.
 
-## 🔗 API Endpoints
+## API Endpoints
 
 ### Authentication Routes (`/api/auth`)
 - `POST /register` - Register new user
@@ -316,7 +334,7 @@ This app uses Razorpay in **test mode**. To complete a test payment, choose **Wa
 - `POST /` - Add item to favorites (protected)
 - `DELETE /:menuItemId` - Remove from favorites (protected)
 
-## � Authentication & Route Protection
+## Authentication & Route Protection
 
 ### Authentication Flow
 The application implements a secure authentication system using JWT tokens:
@@ -337,7 +355,7 @@ The application implements a secure authentication system using JWT tokens:
 - `AdminRoute` - Protects admin routes, redirects to login if not authenticated or not admin
 - Authentication state managed via Redux with localStorage persistence
 
-## �👥 User Roles
+## User Roles
 
 ### Customer
 - Browse menu items
@@ -359,7 +377,7 @@ The application implements a secure authentication system using JWT tokens:
 
 *Note: Change these credentials in production*
 
-## 🚀 Deployment
+## Deployment
 
 ### Frontend (Vercel)
 The frontend is deployed on Vercel and automatically deploys from the main branch.
@@ -375,7 +393,7 @@ The frontend is deployed on Vercel and automatically deploys from the main branc
 - Configure JWT secrets
 - Set proper error handling
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -383,16 +401,16 @@ The frontend is deployed on Vercel and automatically deploys from the main branc
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author
+## Author
 
 **Shaikh Suja Rahaman**
 - GitHub: [@Shaikh-Suja-Rahaman](https://github.com/Shaikh-Suja-Rahaman)
 
-## 🆘 Support
+## Support
 
 If you encounter any issues or have questions, please:
 1. Check the existing [Issues](https://github.com/Shaikh-Suja-Rahaman/Kiosks-Restaurant-Ordering-webapp/issues)
@@ -401,4 +419,4 @@ If you encounter any issues or have questions, please:
 
 ---
 
-⭐ **Star this repository if you found it helpful!** ⭐
+ **Star this repository if you found it helpful!** 

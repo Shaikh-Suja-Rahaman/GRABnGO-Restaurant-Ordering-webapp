@@ -1,5 +1,5 @@
 import Order from "../models/Order.js";
-
+import MenuItem from "../models/MenuItem.js";
 
 export const placeOrder = async (req, res) => {
   try {
@@ -31,7 +31,7 @@ export const placeOrder = async (req, res) => {
 export const getMyOrders = async (req, res) => {
   try {
     // Find all orders where the 'user' field matches the logged-in user's ID
-    const orders = await Order.find({ user: req.user._id });
+    const orders = await Order.find({ user: req.user._id }).populate('orderItems.menuItem', 'name');
     res.status(200).json(orders);
   } catch (error) {
     console.error(error);
@@ -48,10 +48,9 @@ export const getOrderById = async (req, res) => {
     // 1. Find the order by its ID from the URL
     // 2. Also 'populate' the user field: replaces the user ID
     //    with the user's name and email.
-    const order = await Order.findById(req.params.id).populate(
-      'user',
-      'username email'
-    );
+    const order = await Order.findById(req.params.id)
+      .populate('user', 'username email')
+      .populate('orderItems.menuItem', 'name');
 
     if (order) {
       // 3. Security Check:
@@ -77,7 +76,9 @@ export const getOrderById = async (req, res) => {
 export const getAllOrders = async (req, res) => {
   try {
     // Find all orders and populate with user info
-    const orders = await Order.find({}).populate('user', 'id username email');
+    const orders = await Order.find({})
+      .populate('user', 'id username email')
+      .populate('orderItems.menuItem', 'name');
     res.status(200).json(orders);
   } catch (error) {
     console.error(error);

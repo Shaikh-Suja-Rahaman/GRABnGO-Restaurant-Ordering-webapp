@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Loader2, Receipt, Clock, PackageCheck, LogOut, Package } from 'lucide-react';
+import { Loader2, Receipt, Clock, PackageCheck, LogOut, ScrollText } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import PerforationMotif from '../components/PerforationMotif';
@@ -89,17 +89,18 @@ function OrderTicket({ order }) {
             {st.label}
           </span>
         </div>
-
+          
         {/* Ticket Body (Items) */}
         <div style={{ padding: '20px' }}>
           <p className="t-section" style={{ fontSize: '12px', marginBottom: '12px', opacity: 0.6 }}>Items</p>
           {order.orderItems?.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {order.orderItems.map((item, i) => (
+                
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '15px', fontWeight: 600, color: 'var(--color-ink)' }}>
                     <span style={{ fontFamily: 'var(--font-mono)', opacity: 0.5, marginRight: '8px' }}>{item.quantity}x</span>
-                    {item.name || 'Item'}
+                    {item.menuItem?.name || item.name || 'Item'}
                   </span>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', color: 'var(--color-ink)' }}>
                     ₹{(item.price * item.quantity).toFixed(0)}
@@ -187,18 +188,22 @@ export default function OrderHistoryPage() {
           </div>
         ) : sorted.length === 0 ? (
           <div style={{
-            background: 'var(--color-card-surface)', margin: '40px auto', borderRadius: '8px',
-            padding: '64px 24px', textAlign: 'center', border: '1px dashed var(--color-card-border)'
+            background: 'var(--color-card-surface)',
+            border: '1px solid rgba(36, 31, 26, 0.08)',
+            borderRadius: '16px',
+            padding: '64px 24px',
+            textAlign: 'center',
+            maxWidth: '480px', margin: '40px auto',
           }}>
-            <Package size={40} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
-            <p className="t-section" style={{ marginBottom: '8px' }}>
-              NO TICKETS YET
+            <ScrollText size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+            <p className="t-name" style={{ marginBottom: '8px' }}>
+              No tickets yet
             </p>
             <p className="t-desc" style={{ marginBottom: '32px' }}>
               Place your first order to get a claim ticket.
             </p>
-            <button className="btn-cta" onClick={() => navigate('/')}>
-              BROWSE MENU
+            <button className="btn-cta" style={{ width: '100%' }} onClick={() => navigate('/')}>
+              Browse Menu
             </button>
           </div>
         ) : (

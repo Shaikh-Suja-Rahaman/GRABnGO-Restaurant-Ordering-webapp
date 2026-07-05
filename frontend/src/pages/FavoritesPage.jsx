@@ -149,7 +149,7 @@ export default function FavoritesPage() {
             padding: '64px 24px', textAlign: 'center',
             maxWidth: '480px', margin: '40px auto',
           }}>
-            <Heart size={40} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+            <Heart size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
             <p className="t-name" style={{ marginBottom: '8px' }}>
               Nothing saved yet
             </p>

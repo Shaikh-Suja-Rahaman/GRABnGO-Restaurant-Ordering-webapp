@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Minus, Trash2, Loader2, ShoppingBag, ShieldCheck, LogOut } from 'lucide-react';
+import { Plus, Minus, Trash2, Loader2, ShoppingCart, ShieldCheck, LogOut } from 'lucide-react';
 import Header from '../components/Header';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -14,6 +14,8 @@ import { setActiveTab } from '../redux/slices/navigationSlice';
 
 // ─── Cart row (wide list style) ────────────────────────
 function CartRow({ item, onUpdateQty, onRemove }) {
+
+  // const dispatch  = useDispatch();
   const [imgErr, setImgErr] = React.useState(false);
 
   return (
@@ -126,7 +128,7 @@ export default function CartPage() {
               orderId: resp.razorpay_order_id,
               paymentId: resp.razorpay_payment_id,
               signature: resp.razorpay_signature,
-              orderItems: cartItems.map(({ _id, quantity, price }) => ({ menuItem: _id, quantity, price })),
+              orderItems: cartItems.map(({ _id, name, quantity, price }) => ({ menuItem: _id, name, quantity, price })),
               totalPrice: Number(totalStr),
             }, cfg);
             dispatch(orderCreateSuccess(v.data));
@@ -174,11 +176,14 @@ export default function CartPage() {
             background: 'var(--color-card-surface)',
             border: '1px solid rgba(36, 31, 26, 0.08)',
             borderRadius: '16px',
-            padding: '64px 24px',
+            padding: '32px 32px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             textAlign: 'center',
-            maxWidth: '480px', margin: '40px auto',
+            maxWidth: '400px', margin: '64px auto',
           }}>
-            <ShoppingBag size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+            <ShoppingCart size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '24px' }} />
             <p className="t-name" style={{ marginBottom: '8px' }}>
               Your cart is empty
             </p>
@@ -250,7 +255,7 @@ export default function CartPage() {
               >
                 {loading
                   ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Processing…</>
-                  : <><ShoppingBag size={16} /> Place Order</>}
+                  : <><ShoppingCart size={16} /> Place Order</>}
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '16px' }}>

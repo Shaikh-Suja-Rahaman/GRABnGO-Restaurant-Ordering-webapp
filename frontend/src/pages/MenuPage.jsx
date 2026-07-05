@@ -156,7 +156,7 @@ export default function MenuPage() {
         {/* Right Content Grid */}
         <main style={{ flex: 1, width: '100%' }}>
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="card" style={{ display: 'flex', flexDirection: 'row', height: '140px' }}>
                   <div style={{ width: '120px', background: 'var(--color-card-border)', animation: 'pulse 1.5s ease-in-out infinite' }} />
@@ -182,7 +182,7 @@ export default function MenuPage() {
                     EMPTY CATEGORY
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                     {catItems.map((item) => {
                       const cartItem = cartItems.find((c) => c._id === item._id);
                       return (

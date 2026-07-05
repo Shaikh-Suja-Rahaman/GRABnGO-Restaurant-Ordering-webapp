@@ -89,7 +89,7 @@ export default function FoodTicket({ item, cartQty, isFav, onAdd, onInc, onDec, 
           <p className="t-name" style={{ 
             marginBottom: '4px', 
             display: '-webkit-box', 
-            WebkitLineClamp: 1, 
+            WebkitLineClamp: 2, 
             WebkitBoxOrient: 'vertical', 
             overflow: 'hidden' 
           }}>

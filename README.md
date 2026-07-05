@@ -20,7 +20,7 @@
 
 ## Live Demo
 
-**Frontend:** [https://kiosks-restaurant-ordering-webapp.vercel.app](https://kiosks-restaurant-ordering-webapp.vercel.app)
+**Frontend:** [https://grabngo-webapp.vercel.app](https://grabngo-webapp.vercel.app)
 
 ---
 

@@ -119,7 +119,7 @@ export default function CartPage() {
         key: 'rzp_test_RqJeFkIbBlROTt',
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: 'Kiosks',
+        name: 'GrabNGo',
         description: 'Payment',
         order_id: razorpayOrder.id,
         handler: async (resp) => {
@@ -139,7 +139,7 @@ export default function CartPage() {
             dispatch(orderCreateFail(e.response?.data?.message || e.message));
           }
         },
-        theme: { color: '#8B4049' },
+        theme: { color: '#D6432E' },
         modal: { ondismiss: () => dispatch(orderCreateFail('Payment cancelled')) },
       };
       const rzp = new window.Razorpay(options);

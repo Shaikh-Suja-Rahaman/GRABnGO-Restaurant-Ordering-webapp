@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Plus, Minus, Trash2, Loader2, ShoppingBag, ShieldCheck, LogOut } from 'lucide-react';
+import Header from '../components/Header';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 import { logout } from '../redux/slices/authSlice';
@@ -158,44 +159,15 @@ export default function CartPage() {
     <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
 
       {/* ── Sticky Page Header ── */}
-      <div style={{
-        background: 'var(--color-background)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}>
-        <div style={{
-          position: 'absolute', bottom: '-20px', left: 0, right: 0, height: '20px',
-          background: 'linear-gradient(to bottom, var(--color-background) 0%, transparent 100%)',
-          pointerEvents: 'none'
-        }}/>
-        <div style={{
-          maxWidth: '1000px',
-          margin: '0 auto',
-          padding: '24px 20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <div>
-            <p className="t-page-title">Your Cart</p>
-            <p className="t-desc" style={{ marginTop: '4px' }}>
-              {cartItems.length === 0 ? 'Nothing here yet' : `${totalItems} item${totalItems > 1 ? 's' : ''}`}
-            </p>
-          </div>
-          {userInfo && (
-            <button 
-              onClick={handleLogout}
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ink)', opacity: 0.7, padding: '8px' }}
-              aria-label="Logout"
-            >
-              <LogOut size={24} />
-            </button>
-          )}
-        </div>
-      </div>
+      <Header />
 
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px 20px' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px 20px' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <p className="t-page-title">Your Cart</p>
+          <p className="t-desc" style={{ marginTop: '4px' }}>
+            {cartItems.length === 0 ? 'Nothing here yet' : `${totalItems} item${totalItems > 1 ? 's' : ''}`}
+          </p>
+        </div>
         {cartItems.length === 0 ? (
           /* Empty */
           <div style={{

@@ -25,6 +25,8 @@ body {
   background-color: var(--color-background);
   color: var(--color-ink);
   min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: scroll; /* Prevents layout shift when scrollbar appears/disappears */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
@@ -108,6 +110,7 @@ body {
   letter-spacing: 0.5px;
   transition: opacity 150ms ease;
 }
+.btn-cta:hover { opacity: 0.9; }
 .btn-cta:active { opacity: 0.85; }
 .btn-cta:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -129,6 +132,7 @@ body {
   text-transform: uppercase;
   transition: background-color 150ms ease, color 150ms ease;
 }
+.btn-outline:hover { background-color: rgba(36, 31, 26, 0.05); }
 .btn-outline:active { background-color: var(--color-ink); color: var(--color-background); }
 
 /* Add Item Button (Stamp Outline) */
@@ -151,6 +155,7 @@ body {
   height: 32px;
   padding: 0;
 }
+.btn-add:hover { background-color: rgba(214, 67, 46, 0.06); }
 .btn-add:active { background-color: var(--color-stamp); color: var(--color-background); }
 
 /* Category Sidebar Item */
@@ -174,6 +179,9 @@ body {
   background-color: var(--color-card-border);
   opacity: 1;
 }
+.cat-item:hover:not(.cat-item-active) {
+  background-color: rgba(36, 31, 26, 0.08);
+}
 
 /* Quantity Stepper */
 .qty-stepper {
@@ -196,7 +204,8 @@ body {
   align-items: center;
   justify-content: center;
 }
-.qty-btn:active { background-color: var(--color-background); }
+.qty-btn:hover:not(:disabled) { background-color: rgba(36, 31, 26, 0.04); }
+.qty-btn:active:not(:disabled) { background-color: var(--color-background); }
 .qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .qty-count {
   min-width: 24px;
@@ -226,6 +235,22 @@ body {
 .input-clean::placeholder {
   color: var(--color-ink);
   opacity: 0.5;
+}
+
+/* Header & Bottom Nav Hover States */
+.header-icon-btn {
+  transition: color 150ms ease, opacity 150ms ease;
+}
+.header-icon-btn:hover {
+  opacity: 1 !important;
+  color: var(--color-primary);
+}
+.bottom-nav-item {
+  border-radius: 8px;
+  transition: background-color 150ms ease;
+}
+.bottom-nav-item:hover {
+  background-color: rgba(36, 31, 26, 0.08) !important;
 }
 
 /* Layout Utilities */

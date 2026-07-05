@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Loader2, Receipt, Clock, PackageCheck, LogOut } from 'lucide-react';
+import { Loader2, Receipt, Clock, PackageCheck, LogOut, Package } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Package } from 'lucide-react';
 import PerforationMotif from '../components/PerforationMotif';
+import Header from '../components/Header';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -132,6 +132,7 @@ export default function OrderHistoryPage() {
 
   const { loading, error, orders } = useSelector((s) => s.myOrders);
   const { userInfo } = useSelector((s) => s.auth);
+  const [visibleCount, setVisibleCount] = useState(10);
 
   useEffect(() => {
     if (!userInfo) { navigate('/login'); return; }
@@ -159,41 +160,14 @@ export default function OrderHistoryPage() {
   return (
     <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
       {/* ── Sticky Page Header ── */}
-      <div style={{
-        background: 'var(--color-background)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}>
-        <div style={{
-          position: 'absolute', bottom: '-20px', left: 0, right: 0, height: '20px',
-          background: 'linear-gradient(to bottom, var(--color-background) 0%, transparent 100%)',
-          pointerEvents: 'none'
-        }}/>
-        
-        <div style={{
-          maxWidth: '1000px',
-          margin: '0 auto',
-          padding: '24px 20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <div>
-            <p className="t-page-title">Orders</p>
-            <p className="t-desc" style={{ marginTop: '4px' }}>
-              {loading ? '' : `${orders.length} order${orders.length !== 1 ? 's' : ''} total`}
-            </p>
-          </div>
-          {userInfo && (
-            <button 
-              onClick={handleLogout}
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ink)', opacity: 0.7, padding: '8px' }}
-              aria-label="Logout"
-            >
-              <LogOut size={24} />
-            </button>
-          )}
+      <Header />
+
+      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '16px 20px' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <p className="t-page-title">Orders</p>
+          <p className="t-desc" style={{ marginTop: '4px' }}>
+            {loading ? '' : `${orders.length} order${orders.length !== 1 ? 's' : ''} total`}
+          </p>
         </div>
       </div>
 
@@ -229,9 +203,20 @@ export default function OrderHistoryPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', overflow: 'hidden' /* Hide extra timeline line at bottom */ }}>
-            {sorted.map((order) => (
+            {sorted.slice(0, visibleCount).map((order) => (
               <OrderTicket key={order._id} order={order} />
             ))}
+            
+            {visibleCount < sorted.length && (
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <button 
+                  className="btn-outline" 
+                  onClick={() => setVisibleCount(prev => prev + 10)}
+                >
+                  Load More
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

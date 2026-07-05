@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Plus, Minus, Search, X, Github, LogOut } from 'lucide-react';
+import { Heart, Plus, Minus, X } from 'lucide-react';
+import FoodTicket from '../components/FoodTicket';
+import Header from '../components/Header';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -19,153 +21,7 @@ import {
 // ─── Category list ─────────────────────────────────────
 const CATEGORIES = ['All', 'Burgers', 'Meals', 'Pizzas', 'Biryanis', 'Sandwich', 'Hot Beverages', 'Cold Beverages'];
 
-// ─── FoodTicket Component ──────────────────────────
-function FoodTicket({ item, cartQty, isFav, onAdd, onInc, onDec, onFav, favLoading, showFav, onImageClick }) {
-  const [imgErr, setImgErr] = useState(false);
-  const inCart = cartQty > 0;
 
-  return (
-    <div className="card" style={{
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center', // vertically center contents
-      position: 'relative',
-      padding: '12px',      // inner padding so it doesn't bleed to edge
-      gap: '16px',          // gap between image and info
-      height: '144px',
-    }}>
-      
-      {/* ── Fixed Heart Button (Stamp Color) ── */}
-      {showFav && (
-        <button
-          id={`fav-${item._id}`}
-          onClick={() => onFav(item)}
-          disabled={favLoading}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            background: 'var(--color-card-surface)',
-            border: '1px solid rgba(36, 31, 26, 0.08)',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 10,
-            opacity: favLoading ? 0.4 : 1,
-            boxShadow: '0 2px 4px rgba(36, 31, 26, 0.05)'
-          }}
-        >
-          <Heart
-            size={16}
-            style={{ 
-              color: isFav ? 'var(--color-stamp)' : 'var(--color-ink)', 
-              fill: isFav ? 'var(--color-stamp)' : 'none', 
-              opacity: isFav ? 1 : 0.4,
-              transition: 'fill 150ms ease, color 150ms ease, opacity 150ms ease' 
-            }}
-          />
-        </button>
-      )}
-
-      {/* ── Image (Left) ── */}
-      <div 
-        onClick={() => onImageClick(item)}
-        style={{
-          width: '120px',
-          minWidth: '120px',
-          height: '120px',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          background: 'var(--color-card-border)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }}
-      >
-        {item.imageUrl && !imgErr ? (
-          <img
-            src={item.imageUrl}
-            alt={item.name}
-            onError={() => setImgErr(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
-        ) : (
-          <span style={{ fontSize: '24px', color: 'var(--color-ink)', opacity: 0.3, fontFamily: 'var(--font-display)' }}>
-            {item.name.charAt(0)}
-          </span>
-        )}
-      </div>
-
-      {/* ── Info & Actions (Right) ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, justifyContent: 'center', height: '100%' }}>
-        
-        {/* Row 1: Name & Desc */}
-        <div style={{ paddingRight: '28px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p className="t-name" style={{ 
-            marginBottom: '4px', 
-            display: '-webkit-box', 
-            WebkitLineClamp: 1, 
-            WebkitBoxOrient: 'vertical', 
-            overflow: 'hidden' 
-          }}>
-            {item.name}
-          </p>
-          {item.description && (
-            <p className="t-desc" style={{
-              margin: '0',
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}>
-              {item.description}
-            </p>
-          )}
-        </div>
-
-        {/* Row 2: Price & Action */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <p className="t-price" style={{ fontSize: '18px' }}>₹{item.price.toFixed(0)}</p>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            {inCart ? (
-              <div className="qty-stepper">
-                <button className="qty-btn" id={`dec-${item._id}`} onClick={() => onDec(item)}>
-                  <Minus size={14} strokeWidth={3} />
-                </button>
-                <span className="qty-count">{cartQty}</span>
-                <button
-                  className="qty-btn" id={`inc-${item._id}`}
-                  onClick={() => onInc(item)}
-                  disabled={cartQty >= 10}
-                >
-                  <Plus size={14} strokeWidth={3} />
-                </button>
-              </div>
-            ) : (
-              <button 
-                className="btn-add"
-                id={`add-${item._id}`} 
-                onClick={() => onAdd(item)} 
-                aria-label={`Add ${item.name}`}
-              >
-                ADD <Plus size={14} strokeWidth={3} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── Main MenuPage ─────────────────────────────────────
 export default function MenuPage() {
@@ -261,62 +117,11 @@ export default function MenuPage() {
   return (
     <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--color-background)' }}>
       {/* ── Sticky Page Header ── */}
-      <div style={{
-        background: 'var(--color-background)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}>
-        <div style={{
-          position: 'absolute', bottom: '-20px', left: 0, right: 0, height: '20px',
-          background: 'linear-gradient(to bottom, var(--color-background) 0%, transparent 100%)',
-          pointerEvents: 'none'
-        }}/>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '24px 20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-        }}>
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <p className="t-brand" style={{ display: 'flex', alignItems: 'baseline' }}>
-              GRAB<span style={{ fontSize: '0.85em', margin: '0 2px', textTransform: 'lowercase' }}>n</span>GO
-            </p>
-          </div>
-          
-          {/* Search Bar & Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', maxWidth: '340px' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-ink)', opacity: 0.5 }} />
-              <input 
-                type="text" 
-                placeholder="SEARCH MENU..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-clean" 
-                style={{ paddingLeft: '40px' }} 
-              />
-            </div>
-            <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: 'var(--color-ink)', opacity: 0.6, display: 'flex', flexShrink: 0 }}>
-              <Github size={24} />
-            </a>
-            {userInfo && (
-              <button 
-                onClick={handleLogout}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-ink)', opacity: 0.7, padding: '8px', display: 'flex', flexShrink: 0 }}
-                aria-label="Logout"
-              >
-                <LogOut size={24} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      <Header 
+        showSearch={true} 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+      />
 
       {/* ── Main Content Layout ── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
@@ -331,7 +136,12 @@ export default function MenuPage() {
           flexDirection: 'column',
           gap: '4px'
         }}>
-          <p className="t-section" style={{ marginBottom: '12px', paddingLeft: '16px' }}>Menu</p>
+          <div style={{ marginBottom: '16px' }}>
+            <p className="t-page-title">Menu</p>
+            <p className="t-desc" style={{ marginTop: '4px', letterSpacing: '0.2px' }}>
+              {loading ? '' : `${safeItems.length} items`}
+            </p>
+          </div>
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -364,11 +174,9 @@ export default function MenuPage() {
           ) : (
             grouped.map(({ cat, items: catItems }) => (
               <div key={cat} style={{ marginBottom: '40px' }}>
-                {selectedCat === 'All' && (
-                  <p className="t-section" style={{ marginBottom: '16px', paddingBottom: '8px', opacity: 0.8 }}>
-                    {cat}
-                  </p>
-                )}
+                <p className="t-section" style={{ marginBottom: '16px', paddingBottom: '8px', opacity: 0.8 }}>
+                  {cat}
+                </p>
 
                 {catItems.length === 0 ? (
                   <div style={{ padding: '24px', color: 'var(--color-ink)', opacity: 0.5, fontSize: '14px', background: 'var(--color-card-surface)', borderRadius: '8px', textAlign: 'center', border: '1px solid var(--color-card-border)' }}>

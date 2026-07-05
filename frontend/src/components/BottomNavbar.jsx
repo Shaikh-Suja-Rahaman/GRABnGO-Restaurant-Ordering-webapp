@@ -19,17 +19,17 @@ export default function BottomNavbar({ activeTab, setActiveTab }) {
       bottom: '24px', 
       left: '50%',
       transform: 'translateX(-50%)',
-      height: '64px',
+      height: '80px',
       width: 'calc(100% - 32px)',
       maxWidth: '400px',
       background: 'rgba(249, 245, 236, 0.85)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
       border: '1px solid rgba(36, 31, 26, 0.08)',
       borderRadius: '16px',
       boxShadow: '0 4px 20px rgba(36, 31, 26, 0.05)',
       zIndex: 100,
-      padding: '0 8px',
+      padding: '8px 8px',
     }}>
       <div style={{
         display: 'flex',
@@ -43,6 +43,7 @@ export default function BottomNavbar({ activeTab, setActiveTab }) {
             <button
               key={id}
               id={`nav-${id}`}
+              className="bottom-nav-item"
               onClick={() => setActiveTab(id)}
               style={{
                 flex: 1,

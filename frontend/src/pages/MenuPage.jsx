@@ -124,40 +124,39 @@ export default function MenuPage() {
       />
 
       {/* ── Main Content Layout ── */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+      <div className="max-w-[1200px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
         
         {/* Left Sidebar (Categories) */}
-        <aside style={{ 
-          width: '200px', 
-          flexShrink: 0, 
-          position: 'sticky', 
-          top: '100px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px'
-        }}>
-          <div style={{ marginBottom: '16px' }}>
-            <p className="t-page-title">Menu</p>
-            <p className="t-desc" style={{ marginTop: '4px', letterSpacing: '0.2px' }}>
-              {loading ? '' : `${safeItems.length} items`}
-            </p>
+        <aside className="w-full md:w-[200px] shrink-0 sticky top-[90px] md:top-[100px] z-40 bg-[var(--color-background)] pb-2 md:pb-0">
+          {/* Mobile Title (Optional, keeping it simple) */}
+          <div className="md:hidden mb-2 px-1">
+            <p className="t-page-title text-[24px]">Menu</p>
           </div>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              id={`cat-${cat.replace(/\s+/g, '-').toLowerCase()}`}
-              onClick={() => setSelectedCat(cat)}
-              className={`cat-item ${selectedCat === cat ? 'cat-item-active' : ''}`}
-            >
-              {cat}
-            </button>
-          ))}
+          
+          <div className="flex md:flex-col gap-2 md:gap-1 overflow-x-auto no-scrollbar items-center md:items-stretch px-1 md:px-0">
+            <div className="hidden md:block mb-4 shrink-0">
+              <p className="t-page-title">Menu</p>
+              <p className="t-desc" style={{ marginTop: '4px', letterSpacing: '0.2px' }}>
+                {loading ? '' : `${safeItems.length} items`}
+              </p>
+            </div>
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                id={`cat-${cat.replace(/\s+/g, '-').toLowerCase()}`}
+                onClick={() => setSelectedCat(cat)}
+                className={`cat-item whitespace-nowrap shrink-0 w-auto md:w-full ${selectedCat === cat ? 'cat-item-active' : ''}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </aside>
 
         {/* Right Content Grid */}
-        <main style={{ flex: 1 }}>
+        <main style={{ flex: 1, width: '100%' }}>
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '12px' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="card" style={{ display: 'flex', flexDirection: 'row', height: '140px' }}>
                   <div style={{ width: '120px', background: 'var(--color-card-border)', animation: 'pulse 1.5s ease-in-out infinite' }} />
@@ -183,11 +182,7 @@ export default function MenuPage() {
                     EMPTY CATEGORY
                   </div>
                 ) : (
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-                    gap: '12px' // Strict 12px gap
-                  }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
                     {catItems.map((item) => {
                       const cartItem = cartItems.find((c) => c._id === item._id);
                       return (

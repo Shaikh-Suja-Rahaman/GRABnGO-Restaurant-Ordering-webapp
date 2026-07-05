@@ -102,37 +102,36 @@ export default function FavoritesPage() {
       />
 
       {/* ── Main Content Layout ── */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px', display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+      <div className="max-w-[1200px] mx-auto p-4 md:p-6 flex flex-col md:flex-row gap-6 md:gap-8 items-start">
         
-        {/* ── Sidebar ── */}
-        <div style={{
-          width: '200px',
-          flexShrink: 0,
-          position: 'sticky',
-          top: '110px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}>
-          <div style={{ marginBottom: '16px' }}>
-            <p className="t-page-title">Saved</p>
-            <p className="t-desc" style={{ marginTop: '4px', letterSpacing: '0.2px' }}>
-              {loading ? '' : `${favorites.length} item${favorites.length !== 1 ? 's' : ''} saved`}
-            </p>
+        {/* Left Sidebar (Categories) */}
+        <aside className="w-full md:w-[200px] shrink-0 sticky top-[90px] md:top-[100px] z-40 bg-[var(--color-background)] pb-2 md:pb-0">
+          {/* Mobile Title */}
+          <div className="md:hidden mb-2 px-1">
+            <p className="t-page-title text-[24px]">Saved</p>
           </div>
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              className={`cat-item ${selectedCat === cat ? 'cat-item-active' : ''}`}
-              onClick={() => setSelectedCat(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+          
+          <div className="flex md:flex-col gap-2 md:gap-1 overflow-x-auto no-scrollbar items-center md:items-stretch px-1 md:px-0">
+            <div className="hidden md:block mb-4 shrink-0">
+              <p className="t-page-title">Saved</p>
+              <p className="t-desc" style={{ marginTop: '4px', letterSpacing: '0.2px' }}>
+                {loading ? '' : `${favorites.length} item${favorites.length !== 1 ? 's' : ''} saved`}
+              </p>
+            </div>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                className={`cat-item whitespace-nowrap shrink-0 w-auto md:w-full ${selectedCat === cat ? 'cat-item-active' : ''}`}
+                onClick={() => setSelectedCat(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </aside>
 
         {/* ── Content ── */}
-        <div style={{ flex: 1, minWidth: 0, paddingBottom: '80px' }}>
+        <div style={{ flex: 1, minWidth: 0, paddingBottom: '80px', width: '100%' }}>
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '64px 0', gap: '12px' }}>
             <Loader2 size={22} style={{ color: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
@@ -143,13 +142,8 @@ export default function FavoritesPage() {
             <p style={{ color: '#991b1b', fontSize: '14px' }}>{error}</p>
           </div>
         ) : favorites.length === 0 ? (
-          <div style={{
-            background: 'var(--color-card-surface)', borderRadius: '16px',
-            border: '1px solid rgba(36, 31, 26, 0.08)',
-            padding: '64px 24px', textAlign: 'center',
-            maxWidth: '480px', margin: '40px auto',
-          }}>
-            <Heart size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+          <div className="bg-[var(--color-card-surface)] border border-black/10 rounded-2xl p-12 md:p-16 flex flex-col items-center text-center max-w-[400px] mx-auto my-16">
+            <Heart size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '24px' }} />
             <p className="t-name" style={{ marginBottom: '8px' }}>
               Nothing saved yet
             </p>
@@ -165,11 +159,7 @@ export default function FavoritesPage() {
              NO RESULTS FOUND
            </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '12px'
-          }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
             {filtered.map((item) => {
               const cartItem = cartItems.find((c) => c._id === item._id);
               return (

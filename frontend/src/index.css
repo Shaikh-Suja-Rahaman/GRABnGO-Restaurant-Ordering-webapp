@@ -169,7 +169,6 @@ body {
   cursor: pointer;
   text-align: left;
   transition: background-color 150ms ease;
-  width: 100%;
   border: none;
   background: transparent;
   opacity: 0.7;

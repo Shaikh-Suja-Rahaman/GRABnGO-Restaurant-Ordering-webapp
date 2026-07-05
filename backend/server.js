@@ -18,6 +18,7 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowed = [
       'https://kiosks-restaurant-ordering-webapp.vercel.app',
+      'https://grabngo-webapp.vercel.app',
     ];
     // Allow any localhost origin (any port) for local development
     if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || allowed.includes(origin)) {

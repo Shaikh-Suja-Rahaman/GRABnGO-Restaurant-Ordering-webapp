@@ -31,7 +31,7 @@ function OrderTicket({ order }) {
   const date = new Date(order.createdAt);
 
   return (
-    <div style={{ display: 'flex', gap: '20px', position: 'relative' }}>
+    <div className="flex gap-3 md:gap-5 relative">
       {/* Timeline visual line */}
       <div style={{
         width: '2px',
@@ -187,15 +187,8 @@ export default function OrderHistoryPage() {
             <p style={{ color: 'var(--color-stamp)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>ERR: {error}</p>
           </div>
         ) : sorted.length === 0 ? (
-          <div style={{
-            background: 'var(--color-card-surface)',
-            border: '1px solid rgba(36, 31, 26, 0.08)',
-            borderRadius: '16px',
-            padding: '64px 24px',
-            textAlign: 'center',
-            maxWidth: '480px', margin: '40px auto',
-          }}>
-            <ScrollText size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '20px' }} />
+          <div className="bg-[var(--color-card-surface)] border border-black/10 rounded-2xl p-12 md:p-16 flex flex-col items-center text-center max-w-[400px] mx-auto my-16">
+            <ScrollText size={48} style={{ color: 'var(--color-ink)', opacity: 0.15, marginBottom: '24px' }} />
             <p className="t-name" style={{ marginBottom: '8px' }}>
               No tickets yet
             </p>

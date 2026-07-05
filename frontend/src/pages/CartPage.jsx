@@ -200,12 +200,7 @@ export default function CartPage() {
             </button>
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) 340px',
-            gap: '32px',
-            alignItems: 'start',
-          }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-8 items-start">
             {/* Item list column */}
             <div style={{ paddingTop: '0' }}>
               {cartItems.map((item) => (

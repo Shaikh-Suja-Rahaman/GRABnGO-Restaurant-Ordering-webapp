@@ -1,14 +1,21 @@
-<p align="left">
-  <img src="frontend/public/favicon.svg" alt="GrabNGo Logo" width="100" style="border-radius: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
-</p>
+<div align="center">
+  <img src="frontend/public/favicon.svg" alt="GrabNGo Logo" width="100" style="border-radius: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px;" />
 
-# GrabNGo
+  <h1>GrabNGo</h1>
 
-A modern, minimal full-stack restaurant ordering system that provides a seamless ordering experience for customers and comprehensive management tools for restaurant administrators.
+  <p>A modern, minimal full-stack restaurant ordering system that provides a seamless ordering experience for customers and comprehensive management tools for restaurant administrators.</p>
 
-🔗 **Live Demo:** [grabngo-webapp.vercel.app](https://grabngo-webapp.vercel.app)
+  <p>🔗 <b>Live Demo:</b> <a href="https://grabngo-webapp.vercel.app">grabngo-webapp.vercel.app</a></p>
 
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![NodeJS](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+  <p>
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+    <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="NodeJS" />
+    <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+    <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  </p>
+</div>
 
 ---
 

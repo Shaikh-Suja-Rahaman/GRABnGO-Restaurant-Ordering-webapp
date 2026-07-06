@@ -1,26 +1,14 @@
-<div align="center">
-  <img src="frontend/public/favicon.svg" alt="GrabNGo Logo" width="120" style="border-radius: 20px;" />
+<p align="left">
+  <img src="frontend/public/favicon.svg" alt="GrabNGo Logo" width="100" style="border-radius: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+</p>
 
-  <h1>GrabNGo</h1>
+# GrabNGo
 
-  <p>
-    A modern, minimal restaurant ordering system
-  </p>
+A modern, minimal full-stack restaurant ordering system that provides a seamless ordering experience for customers and comprehensive management tools for restaurant administrators.
 
-  <p>
-    React • Node.js • MongoDB <br/>
-  </p>
-</div>
+🔗 **Live Demo:** [grabngo-webapp.vercel.app](https://grabngo-webapp.vercel.app)
 
----
-
-## Overview
-
-**GrabNGo** is a full-stack restaurant ordering system that provides a seamless ordering experience for customers and comprehensive management tools for restaurant administrators.
-
-## Live Demo
-
-**Frontend:** [https://grabngo-webapp.vercel.app](https://grabngo-webapp.vercel.app)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![NodeJS](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ---
 

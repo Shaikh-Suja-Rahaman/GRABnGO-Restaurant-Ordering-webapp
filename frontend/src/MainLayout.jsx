@@ -14,7 +14,7 @@ export default function MainLayout() {
   const Page = { menu: MenuPage, orders: OrderHistoryPage, favorites: FavoritesPage, cart: CartPage }[activeTab] || MenuPage;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-background)', paddingBottom: '90px' }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--color-background)', paddingBottom: '90px' }}>
       <Page />
       <BottomNavbar activeTab={activeTab} setActiveTab={(tab) => dispatch(setActiveTab(tab))} />
     </div>

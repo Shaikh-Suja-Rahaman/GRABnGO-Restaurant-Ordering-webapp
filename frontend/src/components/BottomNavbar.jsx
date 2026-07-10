@@ -16,7 +16,7 @@ export default function BottomNavbar({ activeTab, setActiveTab }) {
   return (
     <nav style={{
       position: 'fixed',
-      bottom: '24px', 
+      bottom: 'max(24px, calc(16px + env(safe-area-inset-bottom)))', 
       left: '50%',
       transform: 'translateX(-50%)',
       height: '80px',

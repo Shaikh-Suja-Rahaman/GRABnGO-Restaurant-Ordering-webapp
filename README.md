@@ -61,6 +61,10 @@
 - **User Management** - Admin panel for user oversight
 - **Real-time Updates** - Live order tracking and status updates
 
+### Developer Features
+- **API Documentation** - Full OpenAPI/Swagger documentation available at `/api-docs`
+- **Docker Support** - Dockerfile included for easy containerized deployment of the backend
+
 ## Tech Stack
 
 ### Frontend
@@ -222,6 +226,22 @@ cd backend
 npm start
 ```
 
+### Running with Docker
+
+The backend includes a `Dockerfile` for easy containerization and deployment.
+
+1. **Build the Backend Image**
+```bash
+cd backend
+docker build -t grabngo-backend .
+```
+
+2. **Run the Container**
+```bash
+docker run -p 5000:5000 --env-file .env grabngo-backend
+```
+*Note: Make sure your `.env` file contains the correct `MONGO_URI` and other required variables. If you are running MongoDB locally, you might need to use `host.docker.internal` instead of `localhost`.*
+
 ## Project Structure
 
 ```
@@ -305,6 +325,14 @@ This app uses Razorpay in **test mode**. To complete a test payment, choose **Wa
 - Orders persist only after successful signature verification.
 
 ## API Endpoints
+
+### 📖 Swagger API Documentation
+The backend provides interactive API documentation using **Swagger UI**. 
+
+Once the backend server is running, you can view the complete documentation and test endpoints directly from your browser by visiting:
+**`http://localhost:10000/api-docs`** (or your respective port, e.g. 5000).
+
+The documentation includes all route schemas, request/response bodies, and supports authentication testing via Bearer token.
 
 ### Authentication Routes (`/api/auth`)
 - `POST /register` - Register new user

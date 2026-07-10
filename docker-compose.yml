@@ -8,6 +8,7 @@ services:
       - ./backend/.env
     environment:
       - NODE_ENV=production
+      - SWAGGER_URL=http://localhost:5001
     restart: unless-stopped
 
   frontend:

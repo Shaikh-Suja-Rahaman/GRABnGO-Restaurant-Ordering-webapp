@@ -1,5 +1,7 @@
 import swaggerJSDoc from 'swagger-jsdoc'
 
+const SWAGGER_URL = process.env.SWAGGER_URL || `http://localhost:5001`
+
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -9,8 +11,17 @@ const options = {
       description: 'API documentation for the Restaurant Ordering backend'
     },
     servers: [
-      { url: 'http://localhost:5000', description: 'Local server' }
-    ]
+      { url: SWAGGER_URL, description: 'Local server' }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        }
+      }
+    }
   },
   // files containing annotations as above
   apis: ['./routes/*.js', './controllers/*.js']

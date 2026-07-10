@@ -7,11 +7,13 @@ import MenuRoutes from './routes/menuRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import favoritesRoutes from './routes/favoritesRoutes.js';
 import paymentRoutes from "./routes/paymentRoutes.js";
+import swaggerUi from 'swagger-ui-express'
+import swaggerSpec from './swagger.js'
 
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 10000; // Change 5001 to 10000
+const PORT = process.env.PORT || 5000; // default container port; Render provides its own $PORT
 
 app.use(express.json());
 app.use(cors({
@@ -50,3 +52,7 @@ app.use('/api/orders', orderRoutes);
 
 app.use('/api/favorites', favoritesRoutes)
 app.use("/api/payments", paymentRoutes);
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec))
